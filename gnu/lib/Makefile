@@ -2,7 +2,14 @@
 
 .include <bsd.own.mk>
 
-SUBDIR= csu libgcc libgcov libdialog libgomp libregex libreadline
+# amd64 and i386 have BSD licensed crtbegin.o and crtend.o
+.if ${MACHINE_CPUARCH} != "amd64" && ${MACHINE_CPUARCH} != "i386"
+SUBDIR= csu
+.else
+SUBDIR=
+.endif
+
+SUBDIR+= libgcc libgcov libdialog libgomp libregex libreadline
 
 .if ${MK_SSP} != "no"
 SUBDIR+= libssp
