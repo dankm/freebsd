@@ -26,6 +26,9 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/stack.h>
+#else
 #ifndef _MACHINE_STACK_H_
 #define	_MACHINE_STACK_H_
 
@@ -42,3 +45,4 @@ struct amd64_frame {
 };
 
 #endif /* !_MACHINE_STACK_H_ */
+#endif /* !__x86_64__ */

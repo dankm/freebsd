@@ -26,8 +26,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_GDB_MACHDEP_H_
-#define	_MACHINE_GDB_MACHDEP_H_
+#ifndef _AMD64_GDB_MACHDEP_H_
+#define	_AMD64_GDB_MACHDEP_H_
+
+#ifdef __x86_64__
 
 #define	GDB_BUFSZ	(GDB_NREGS * 16)
 #define	GDB_NREGS	56
@@ -49,4 +51,9 @@ void *gdb_cpu_getreg(int, size_t *);
 void gdb_cpu_setreg(int, void *);
 int gdb_cpu_signal(int, int);
 
-#endif /* !_MACHINE_GDB_MACHDEP_H_ */
+#else /* __x86_64__ */
+
+#include <i386/gdb_machdep.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_GDB_MACHDEP_H_ */

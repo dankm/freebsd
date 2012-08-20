@@ -34,6 +34,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/segments.h>
+#else
+
 #ifndef _MACHINE_SEGMENTS_H_
 #define	_MACHINE_SEGMENTS_H_
 
@@ -104,3 +108,4 @@ void	update_gdt_fsbase(struct thread *td, uint32_t base);
 #endif /* _KERNEL */
 
 #endif /* !_MACHINE_SEGMENTS_H_ */
+#endif /* !__x86_64__ */

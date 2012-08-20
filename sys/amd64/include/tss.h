@@ -33,6 +33,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/tss.h>
+#else
+
 #ifndef _MACHINE_TSS_H_
 #define _MACHINE_TSS_H_ 1
 
@@ -68,3 +72,4 @@ extern struct amd64tss common_tss[];
 #endif
 
 #endif /* _MACHINE_TSS_H_ */
+#endif /* !__x86_64__ */

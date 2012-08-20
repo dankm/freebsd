@@ -29,8 +29,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_ASMACROS_H_
-#define _MACHINE_ASMACROS_H_
+#ifndef _AMD64_ASMACROS_H_
+#define _AMD64_ASMACROS_H_
+
+#ifdef __x86_64__
 
 #include <sys/cdefs.h>
 
@@ -201,4 +203,9 @@
 
 #endif /* LOCORE */
 
-#endif /* !_MACHINE_ASMACROS_H_ */
+#else
+
+#include <i386/asmacros.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_ASMACROS_H_ */

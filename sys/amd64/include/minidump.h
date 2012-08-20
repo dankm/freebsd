@@ -26,6 +26,12 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+
+#include <i386/minidump.h>
+
+#else
+
 #ifndef	_MACHINE_MINIDUMP_H_
 #define	_MACHINE_MINIDUMP_H_ 1
 
@@ -44,3 +50,4 @@ struct minidumphdr {
 };
 
 #endif /* _MACHINE_MINIDUMP_H_ */
+#endif /* !__x86_64__ */

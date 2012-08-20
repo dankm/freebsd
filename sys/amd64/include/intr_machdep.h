@@ -26,8 +26,14 @@
  * $FreeBSD$
  */
 
-#ifndef __MACHINE_INTR_MACHDEP_H__
-#define	__MACHINE_INTR_MACHDEP_H__
+#ifndef __AMD64_INTR_MACHDEP_H__
+#define	__AMD64_INTR_MACHDEP_H__
+
+#ifndef __x86_64__
+
+#include <i386/intr_machdep.h>
+
+#else
 
 #ifdef _KERNEL
 
@@ -169,4 +175,5 @@ int	msix_release(int irq);
 
 #endif	/* !LOCORE */
 #endif	/* _KERNEL */
-#endif	/* !__MACHINE_INTR_MACHDEP_H__ */
+#endif	/* !__x86_64__ */
+#endif	/* !__AMD64_INTR_MACHDEP_H__ */

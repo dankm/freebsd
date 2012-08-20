@@ -42,6 +42,12 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+
+#include <i386/pmap.h>
+
+#else /* __x86_64__ */
+
 #ifndef _MACHINE_PMAP_H_
 #define	_MACHINE_PMAP_H_
 
@@ -338,3 +344,5 @@ void	pmap_invalidate_cache_range(vm_offset_t sva, vm_offset_t eva);
 #endif /* !LOCORE */
 
 #endif /* !_MACHINE_PMAP_H_ */
+
+#endif /* !__x86_64__ */

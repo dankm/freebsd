@@ -36,12 +36,14 @@
  * used in preference to this.
  */
 
-#ifndef _MACHINE_CPUFUNC_H_
-#define	_MACHINE_CPUFUNC_H_
+#ifndef _AMD64_CPUFUNC_H_
+#define	_AMD64_CPUFUNC_H_
 
 #ifndef _SYS_CDEFS_H_
 #error this file needs sys/cdefs.h as a prerequisite
 #endif
+
+#ifdef __x86_64__
 
 struct region_descriptor;
 
@@ -788,4 +790,9 @@ int	rdmsr_safe(u_int msr, uint64_t *val);
 int	wrmsr_safe(u_int msr, uint64_t newval);
 #endif
 
-#endif /* !_MACHINE_CPUFUNC_H_ */
+#else /* __x86_64__ */
+
+#include <i386/cpufunc.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_CPUFUNC_H_ */

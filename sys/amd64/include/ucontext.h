@@ -29,8 +29,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_UCONTEXT_H_
-#define	_MACHINE_UCONTEXT_H_
+#ifndef _AMD64_UCONTEXT_H_
+#define	_AMD64_UCONTEXT_H_
+
+#ifdef __x86_64__
 
 /*
  * mc_trapno bits. Shall be in sync with TF_XXX.
@@ -100,4 +102,10 @@ typedef struct __mcontext {
 	long	mc_spare[4];
 } mcontext_t;
 
-#endif /* !_MACHINE_UCONTEXT_H_ */
+#else /* __x86_64__ */
+
+#include <i386/ucontext.h>
+
+#endif
+
+#endif /* !_AMD64_UCONTEXT_H_ */

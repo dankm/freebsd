@@ -26,8 +26,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_DB_MACHDEP_H_
-#define	_MACHINE_DB_MACHDEP_H_
+#ifndef _AMD64_DB_MACHDEP_H_
+#define	_AMD64_DB_MACHDEP_H_
+
+#ifdef __x86_64__
 
 #include <machine/frame.h>
 #include <machine/trap.h>
@@ -91,4 +93,9 @@ do {						\
 #define	DB_SMALL_VALUE_MAX	0x7fffffff
 #define	DB_SMALL_VALUE_MIN	(-0x400001)
 
-#endif /* !_MACHINE_DB_MACHDEP_H_ */
+#else /* __x86_64__ */
+
+#include <i386/db_machdep.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_DB_MACHDEP_H_ */

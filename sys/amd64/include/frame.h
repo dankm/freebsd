@@ -34,8 +34,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_FRAME_H_
-#define _MACHINE_FRAME_H_ 1
+#ifndef _AMD64_FRAME_H_
+#define _AMD64_FRAME_H_ 1
+
+#ifdef __x86_64__
 
 /*
  * System stack frames.
@@ -84,4 +86,9 @@ struct trapframe {
 #define	TF_HASBASES	0x2
 #define	TF_HASFPXSTATE	0x4
 
-#endif /* _MACHINE_FRAME_H_ */
+#else /* __x86_64__ */
+
+#include <i386/frame.h>
+
+#endif /* __x86_64__ */
+#endif /* _AMD64_FRAME_H_ */

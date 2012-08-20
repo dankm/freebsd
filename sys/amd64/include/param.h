@@ -40,8 +40,11 @@
  */
 
 
-#ifndef _AMD64_INCLUDE_PARAM_H_
-#define	_AMD64_INCLUDE_PARAM_H_
+#ifndef __x86_64__
+#include <i386/param.h>
+#else
+#ifndef _MACHINE_INCLUDE_PARAM_H_
+#define	_MACHINE_INCLUDE_PARAM_H_
 
 #include <machine/_align.h>
 
@@ -139,4 +142,5 @@
 
 #define	pgtok(x)	((unsigned long)(x) * (PAGE_SIZE / 1024)) 
 
-#endif /* !_AMD64_INCLUDE_PARAM_H_ */
+#endif /* !_MACHINE_INCLUDE_PARAM_H_ */
+#endif /* !__x86_64__ */

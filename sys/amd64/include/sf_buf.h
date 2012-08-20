@@ -26,6 +26,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/sf_buf.h>
+#else
+
 #ifndef _MACHINE_SF_BUF_H_
 #define _MACHINE_SF_BUF_H_
 
@@ -56,3 +60,4 @@ sf_buf_page(struct sf_buf *sf)
 }
 
 #endif /* !_MACHINE_SF_BUF_H_ */
+#endif /* !__x86_64__ */

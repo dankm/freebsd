@@ -26,6 +26,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/runq.h>
+#else
+
 #ifndef	_MACHINE_RUNQ_H_
 #define	_MACHINE_RUNQ_H_
 
@@ -43,4 +47,5 @@
  */
 typedef	u_int64_t	rqb_word_t;
 
+#endif
 #endif

@@ -26,8 +26,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_ELF_H_
-#define	_MACHINE_ELF_H_ 1
+#ifndef _AMD64_ELF_H_
+#define	_AMD64_ELF_H_ 1
+
+#ifdef __x86_64__
 
 /*
  * ELF definitions for the AMD64 architecture.
@@ -44,7 +46,7 @@
 #define	ELF_ARCH	EM_X86_64
 #define	ELF_ARCH32	EM_386
 
-#define	ELF_MACHINE_OK(x) ((x) == EM_X86_64)
+#define	ELF_AMD64_OK(x) ((x) == EM_X86_64)
 
 /*
  * Auxiliary vector entries for passing information to the interpreter.
@@ -121,4 +123,9 @@ __ElfType(Auxinfo);
 #define	ET_DYN_LOAD_ADDR 0x01021000
 #endif
 
-#endif /* !_MACHINE_ELF_H_ */
+#else /* __x86_64__ */
+
+#include <i386/elf.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_ELF_H_ */

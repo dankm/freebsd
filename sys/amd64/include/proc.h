@@ -30,6 +30,12 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+
+#include <i386/proc.h>
+
+#else /* __x86_64__ */
+
 #ifndef _MACHINE_PROC_H_
 #define	_MACHINE_PROC_H_
 
@@ -89,3 +95,4 @@ struct syscall_args {
 #endif  /* _KERNEL */
 
 #endif /* !_MACHINE_PROC_H_ */
+#endif /* !__x86_64__ */

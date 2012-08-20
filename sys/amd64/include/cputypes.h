@@ -27,8 +27,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_CPUTYPES_H_
-#define	_MACHINE_CPUTYPES_H_
+#ifndef _AMD64_CPUTYPES_H_
+#define	_AMD64_CPUTYPES_H_
+
+#ifdef __x86_64__
 
 /*
  * Classes of processor.
@@ -56,4 +58,9 @@ extern int	cpu;
 extern int	cpu_class;
 #endif
 
-#endif /* !_MACHINE_CPUTYPES_H_ */
+#else /* __x86_64__ */
+
+#include <i386/cputypes.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_CPUTYPES_H_ */

@@ -27,6 +27,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/pc/bios.h>
+#else
+
 #ifndef _MACHINE_PC_BIOS_H_
 #define _MACHINE_PC_BIOS_H_
 
@@ -77,3 +81,4 @@ bios_oem_strings(struct bios_oem *oem, u_char *buffer, size_t maxlen);
 
 
 #endif /* _MACHINE_PC_BIOS_H_ */
+#endif /* !__x86_64__ */

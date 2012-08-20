@@ -26,6 +26,12 @@
  * $FreeBSD$
  */
 
+#ifdef __i386__
+
+#include <i386/kdb.h>
+
+#else
+
 #ifndef _MACHINE_KDB_H_
 #define _MACHINE_KDB_H_
 
@@ -57,3 +63,4 @@ kdb_cpu_trap(int type, int code)
 }
 
 #endif /* _MACHINE_KDB_H_ */
+#endif /* __i386__ */

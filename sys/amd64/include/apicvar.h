@@ -29,8 +29,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_APICVAR_H_
-#define _MACHINE_APICVAR_H_
+#ifndef _AMD64_APICVAR_H_
+#define _AMD64_APICVAR_H_
+
+#ifdef __x86_64__
 
 #include <machine/segments.h>
 
@@ -229,4 +231,10 @@ void	lapic_set_tpr(u_int vector);
 void	lapic_setup(int boot);
 
 #endif /* !LOCORE */
-#endif /* _MACHINE_APICVAR_H_ */
+
+#else /* __x86_64__ */
+
+#include <i386/apicvar.h>
+
+#endif /* __x86_64__ */
+#endif /* _AMD64_APICVAR_H_ */

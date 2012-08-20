@@ -26,12 +26,14 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_PCPU_H_
-#define	_MACHINE_PCPU_H_
+#ifndef _AMD64_PCPU_H_
+#define	_AMD64_PCPU_H_
 
 #ifndef _SYS_CDEFS_H_
 #error "sys/cdefs.h is a prerequisite for this file"
 #endif
+
+#ifdef __x86_64__
 
 #if defined(XEN) || defined(XENHVM)
 #ifndef NR_VIRQS
@@ -256,4 +258,9 @@ __curpcb(void)
 
 #endif /* _KERNEL */
 
-#endif /* !_MACHINE_PCPU_H_ */
+#else  /* __x86_64__ */
+
+#include <i386/pcpu.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_PCPU_H_ */

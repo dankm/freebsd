@@ -38,8 +38,8 @@
  * W. Jolitz 1/90
  */
 
-#ifndef _MACHINE_FPU_H_
-#define	_MACHINE_FPU_H_
+#ifndef _AMD64_FPU_H_
+#define	_AMD64_FPU_H_
 
 #include <x86/fpu.h>
 
@@ -81,4 +81,4 @@ int	is_fpu_kern_thread(u_int flags);
 
 #endif
 
-#endif /* !_MACHINE_FPU_H_ */
+#endif /* !_AMD64_FPU_H_ */

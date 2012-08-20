@@ -28,6 +28,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/sigframe.h>
+#else
+
 #ifndef _MACHINE_SIGFRAME_H_
 #define	_MACHINE_SIGFRAME_H_
 
@@ -44,3 +48,4 @@ struct sigframe {
 };
 
 #endif /* !_MACHINE_SIGFRAME_H_ */
+#endif /* !__x86_64__ */

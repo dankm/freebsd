@@ -32,12 +32,14 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_IN_CKSUM_H_
-#define	_MACHINE_IN_CKSUM_H_	1
+#ifndef _AMD64_IN_CKSUM_H_
+#define	_AMD64_IN_CKSUM_H_	1
 
 #ifndef _SYS_CDEFS_H_
 #error this file needs sys/cdefs.h as a prerequisite
 #endif
+
+#ifdef __x86_64__
 
 #include <sys/cdefs.h>
 
@@ -81,4 +83,9 @@ u_short	in_pseudo(u_int sum, u_int b, u_int c);
 u_short	in_cksum_skip(struct mbuf *m, int len, int skip);
 #endif
 
-#endif /* _MACHINE_IN_CKSUM_H_ */
+#else /* __x86_64__ */
+
+#include <i386/in_cksum.h>
+
+#endif /* __x86_64__ */
+#endif /* _AMD64_IN_CKSUM_H_ */

@@ -6,8 +6,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_CLOCK_H_
-#define	_MACHINE_CLOCK_H_
+#ifndef _AMD64_CLOCK_H_
+#define	_AMD64_CLOCK_H_
+
+#ifdef __x86_64__
 
 #ifdef _KERNEL
 /*
@@ -37,4 +39,9 @@ void	timer_spkr_setfreq(int freq);
 
 #endif /* _KERNEL */
 
-#endif /* !_MACHINE_CLOCK_H_ */
+#else /* __x86_64__ */
+
+#include <i386/clock.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_CLOCK_H_ */

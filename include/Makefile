@@ -125,6 +125,9 @@ _MARCHS=	${MACHINE_CPUARCH}
 .if ${MACHINE_CPUARCH} == "i386" || ${MACHINE_CPUARCH} == "amd64"
 _MARCHS+=	x86
 .endif
+.if ${MACHINE_CPUARCH} == "amd64"
+_MARCHS+=	i386
+.endif
 
 .include <bsd.prog.mk>
 

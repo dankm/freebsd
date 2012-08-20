@@ -34,8 +34,14 @@
  * $FreeBSD$
  */
 
-#ifndef _AMD64_PCB_H_
-#define _AMD64_PCB_H_
+#ifndef __x86_64__
+
+#include <i386/pcb.h>
+
+#else
+
+#ifndef _MACHINE_PCB_H_
+#define _MACHINE_PCB_H_
 
 /*
  * AMD64 process control block
@@ -146,4 +152,5 @@ void	resumectx(struct pcb *);
 
 #endif
 
-#endif /* _AMD64_PCB_H_ */
+#endif /* _MACHINE_PCB_H_ */
+#endif /* !__x86_64__ */

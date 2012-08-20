@@ -25,6 +25,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/timerreg.h>
+#else
+
 /*
  * The outputs of the three timers are connected as follows:
  *
@@ -52,3 +56,4 @@
 #endif /* _KERNEL */
 
 #endif /* _MACHINE_TIMERREG_H_ */
+#endif /* !__x86_64__ */

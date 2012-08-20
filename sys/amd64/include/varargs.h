@@ -40,6 +40,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/varargs.h>
+#else
+
 #ifndef _MACHINE_VARARGS_H_
 #define	_MACHINE_VARARGS_H_
 
@@ -87,3 +91,4 @@ typedef char *va_list;
 #endif /* __GNUCLIKE_BUILTIN_VARARGS */
 
 #endif /* !_MACHINE_VARARGS_H_ */
+#endif /* !__x86_64__ */

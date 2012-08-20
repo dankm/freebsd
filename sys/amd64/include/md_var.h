@@ -29,6 +29,12 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+
+#include <i386/md_var.h>
+
+#else
+
 #ifndef _MACHINE_MD_VAR_H_
 #define	_MACHINE_MD_VAR_H_
 
@@ -118,3 +124,4 @@ struct savefpu *get_pcb_user_save_pcb(struct pcb *pcb);
 struct pcb *get_pcb_td(struct thread *td);
 
 #endif /* !_MACHINE_MD_VAR_H_ */
+#endif /* !__x86_64__ */

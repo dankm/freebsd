@@ -25,8 +25,10 @@
  *
  * $FreeBSD$
  */
-#ifndef _MACHINE_ATOMIC_H_
-#define	_MACHINE_ATOMIC_H_
+#ifndef _AMD64_ATOMIC_H_
+#define	_AMD64_ATOMIC_H_
+
+#ifdef __x86_64__
 
 #ifndef _SYS_CDEFS_H_
 #error this file needs sys/cdefs.h as a prerequisite
@@ -480,4 +482,9 @@ u_long	atomic_readandclear_long(volatile u_long *addr);
 
 #endif /* !WANT_FUNCTIONS */
 
-#endif /* !_MACHINE_ATOMIC_H_ */
+#else /* __x86_64__ */
+
+#include <i386/atomic.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_ATOMIC_H_ */

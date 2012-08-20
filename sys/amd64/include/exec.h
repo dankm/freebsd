@@ -30,9 +30,16 @@
  * $FreeBSD$
  */
 
-#ifndef	_MACHINE_EXEC_H_
-#define	_MACHINE_EXEC_H_
+#ifndef	_AMD64_EXEC_H_
+#define	_AMD64_EXEC_H_
+
+#ifdef __x86_64__
 
 #define	__LDPGSZ	4096
 
-#endif /* !_MACHINE_EXEC_H_ */
+#else /* __x86_64__ */
+
+#include <i386/exec.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_EXEC_H_ */

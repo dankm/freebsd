@@ -31,6 +31,10 @@
  * $FreeBSD$
  */
 
+#ifndef __x86_64__
+#include <i386/signal.h>
+#else
+
 #ifndef _MACHINE_SIGNAL_H_
 #define	_MACHINE_SIGNAL_H_
 
@@ -107,3 +111,4 @@ struct sigcontext {
 #endif /* __BSD_VISIBLE */
 
 #endif /* !_MACHINE_SIGNAL_H_ */
+#endif /* !__x86_64__ */

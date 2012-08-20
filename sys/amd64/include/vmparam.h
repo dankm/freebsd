@@ -42,6 +42,10 @@
  */
 
 
+#ifndef __x86_64__
+#include <i386/vmparam.h>
+#else
+
 #ifndef _MACHINE_VMPARAM_H_
 #define	_MACHINE_VMPARAM_H_ 1
 
@@ -215,3 +219,4 @@
 #define	ZERO_REGION_SIZE	(2 * 1024 * 1024)	/* 2MB */
 
 #endif /* _MACHINE_VMPARAM_H_ */
+#endif /* !__x86_64__ */

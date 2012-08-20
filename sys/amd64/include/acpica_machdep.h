@@ -33,6 +33,12 @@
  *
  *****************************************************************************/
 
+#ifdef __i386__
+
+#include <i386/acpica_machdep.h>
+
+#else /* __i386__ */
+
 #ifndef __ACPICA_MACHDEP_H__
 #define	__ACPICA_MACHDEP_H__
 
@@ -82,3 +88,5 @@ void	acpi_unmap_table(void *table);
 vm_paddr_t acpi_find_table(const char *sig);
 
 #endif /* __ACPICA_MACHDEP_H__ */
+
+#endif /* __i386__ */

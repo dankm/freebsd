@@ -33,8 +33,10 @@
  * $FreeBSD$
  */
 
-#ifndef _MACHINE_CPU_H_
-#define	_MACHINE_CPU_H_
+#ifndef _AMD64_CPU_H_
+#define	_AMD64_CPU_H_
+
+#ifdef __x86_64__
 
 /*
  * Definitions unique to i386 cpu support.
@@ -75,4 +77,9 @@ get_cyclecount(void)
 
 #endif
 
-#endif /* !_MACHINE_CPU_H_ */
+#else /* __x86_64__ */
+
+#include <i386/cpu.h>
+
+#endif /* __x86_64__ */
+#endif /* !_AMD64_CPU_H_ */
