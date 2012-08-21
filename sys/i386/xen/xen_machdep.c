@@ -371,7 +371,7 @@ read_flags(void)
 	register_t flags;
 
 	flags = _read_flags();
-	_vcpu = &HYPERVISOR_shared_info->vcpu_info[smp_processor_id()]; 
+	_vcpu = &HYPERVISOR_shared_info->vcpu_info[smp_processor_id()];
 	if (_vcpu->evtchn_upcall_mask)
 		flags &= ~PSL_I;
 

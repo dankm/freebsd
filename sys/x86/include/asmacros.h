@@ -210,7 +210,7 @@
 	pushl	%ds ;		/* save data and extra segments ... */	\
 	pushl	%es ;							\
 	pushl	%fs
-	
+
 #define	POP_FRAME							\
 	popl	%fs ;							\
 	popl	%es ;							\
@@ -256,7 +256,7 @@
         popl    %esi ;         \
         popl    %edx ;         \
         popl    %ecx ;         \
- 
+
 #define READ_CR3(reg)   movl PCPU(CR3),reg;
 #define LLDT(arg)                 \
         pushl   %edx ;                    \
@@ -265,14 +265,14 @@
         movl    %eax,%gs ;                \
         call    i386_reset_ldt ;          \
         popl    %eax ;                    \
-        popl    %edx 
+        popl    %edx
 #define CLI             call ni_cli
 #else
-#define LOAD_CR3(reg)   movl reg,%cr3; 
-#define READ_CR3(reg)   movl %cr3,reg; 
-#define LLDT(arg)       lldt arg; 
-#define CLI             cli 
-#endif /* !XEN */ 
+#define LOAD_CR3(reg)   movl reg,%cr3;
+#define READ_CR3(reg)   movl %cr3,reg;
+#define LLDT(arg)       lldt arg;
+#define CLI             cli
+#endif /* !XEN */
 
 #endif /* __amd64__ */
 

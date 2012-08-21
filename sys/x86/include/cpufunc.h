@@ -131,7 +131,7 @@ disable_intr(void)
 {
 #if defined(XEN) && defined(__i386__)
 	xen_cli();
-#else	
+#else
 	__asm __volatile("cli" : : : "memory");
 #endif
 }
@@ -157,7 +157,7 @@ enable_intr(void)
 {
 #if defined(XEN) && defined(__i386__)
 	xen_sti();
-#else	
+#else
 	__asm __volatile("sti");
 #endif
 }
@@ -358,10 +358,11 @@ read_flags(void)
 }
 
 #else
+
 static __inline register_t
 #ifdef XEN
 _read_flags(void)
-#else	
+#else
 read_flags(void)
 #endif
 {
@@ -554,7 +555,7 @@ invltlb(void)
 {
 #if defined(XEN) && defined(__i386__)
 	xen_tlb_flush();
-#else	
+#else
 	load_cr3(rcr3());
 #endif
 }
