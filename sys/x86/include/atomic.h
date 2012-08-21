@@ -411,15 +411,26 @@ ATOMIC_ASM(clear,    int,   "andl %1,%0",  "ir", ~v);
 ATOMIC_ASM(add,	     int,   "addl %1,%0",  "ir",  v);
 ATOMIC_ASM(subtract, int,   "subl %1,%0",  "ir",  v);
 
+#ifdef __amd64__
 ATOMIC_ASM(set,	     long,  "orq %1,%0",   "ir",  v);
 ATOMIC_ASM(clear,    long,  "andq %1,%0",  "ir", ~v);
 ATOMIC_ASM(add,	     long,  "addq %1,%0",  "ir",  v);
 ATOMIC_ASM(subtract, long,  "subq %1,%0",  "ir",  v);
+#else
+ATOMIC_ASM(set,	     long,  "orl %1,%0",   "ir",  v);
+ATOMIC_ASM(clear,    long,  "andl %1,%0",  "ir", ~v);
+ATOMIC_ASM(add,	     long,  "addl %1,%0",  "ir",  v);
+ATOMIC_ASM(subtract, long,  "subl %1,%0",  "ir",  v);
+#endif
 
 ATOMIC_LOAD(char,  "cmpxchgb %b0,%1");
 ATOMIC_LOAD(short, "cmpxchgw %w0,%1");
 ATOMIC_LOAD(int,   "cmpxchgl %0,%1");
+#ifdef __amd64__
 ATOMIC_LOAD(long,  "cmpxchgq %0,%1");
+#else
+ATOMIC_LOAD(long,  "cmpxchgl %0,%1");
+#endif
 
 ATOMIC_STORE(char);
 ATOMIC_STORE(short);
