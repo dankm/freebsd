@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/exec.h>
+#include <x86/exec.h>
