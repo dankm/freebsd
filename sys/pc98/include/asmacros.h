@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/asmacros.h>
+#include <x86/asmacros.h>

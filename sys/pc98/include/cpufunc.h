@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/cpufunc.h>
+#include <x86/cpufunc.h>
