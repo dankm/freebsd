@@ -541,11 +541,7 @@ i8254_get_timecount(struct timecounter *tc)
 	if (sc->period == 0)
 		return (i8254_max_count - getit());
 
-#ifdef __amd64__
-	flags = read_rflags();
-#else
-	flags = read_eflags();
-#endif
+	flags = read_flags();
 	mtx_lock_spin(&clock_lock);
 
 	/* Select timer0 and latch counter value. */

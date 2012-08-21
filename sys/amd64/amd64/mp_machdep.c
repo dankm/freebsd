@@ -1108,7 +1108,7 @@ smp_tlb_shootdown(u_int vector, vm_offset_t addr1, vm_offset_t addr2)
 	ncpu = mp_ncpus - 1;	/* does not shootdown self */
 	if (ncpu < 1)
 		return;		/* no other cpus */
-	if (!(read_rflags() & PSL_I))
+	if (!(read_flags() & PSL_I))
 		panic("%s: interrupts disabled", __func__);
 	mtx_lock_spin(&smp_ipi_mtx);
 	smp_tlb_addr1 = addr1;
@@ -1134,7 +1134,7 @@ smp_targeted_tlb_shootdown(cpuset_t mask, u_int vector, vm_offset_t addr1, vm_of
 		if (CPU_EMPTY(&mask))
 			return;
 	}
-	if (!(read_rflags() & PSL_I))
+	if (!(read_flags() & PSL_I))
 		panic("%s: interrupts disabled", __func__);
 	mtx_lock_spin(&smp_ipi_mtx);
 	smp_tlb_addr1 = addr1;

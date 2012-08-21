@@ -134,11 +134,12 @@ bi_checkcpu(void)
 {
     char *cpu_vendor;
     int vendor[3];
-    int eflags, regs[4];
+    register_t eflags;
+	int regs[4];
 
     /* Check for presence of "cpuid". */
-    eflags = read_eflags();
-    write_eflags(eflags ^ PSL_ID);
+    eflags = read_flags();
+    write_flags(eflags ^ PSL_ID);
     if (!((eflags ^ read_eflags()) & PSL_ID))
 	return (0);
 

@@ -365,17 +365,17 @@ rebp(void)
 #endif
 
 u_int
-read_eflags(void)
+read_flags(void)
 {
-        vcpu_info_t *_vcpu;
-	u_int eflags;
+	vcpu_info_t *_vcpu;
+	register_t flags;
 
-	eflags = _read_eflags();
-        _vcpu = &HYPERVISOR_shared_info->vcpu_info[smp_processor_id()]; 
+	flags = _read_flags();
+	_vcpu = &HYPERVISOR_shared_info->vcpu_info[smp_processor_id()]; 
 	if (_vcpu->evtchn_upcall_mask)
-		eflags &= ~PSL_I;
+		flags &= ~PSL_I;
 
-	return (eflags);
+	return (flags);
 }
 
 void
