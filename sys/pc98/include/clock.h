@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/clock.h>
+#include <x86/clock.h>
