@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/ucontext.h>
+#include <x86/ucontext.h>
