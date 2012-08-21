@@ -83,15 +83,6 @@ bsfl(u_int mask)
 	return (result);
 }
 
-static __inline u_long
-bsfq(u_long mask)
-{
-	u_long	result;
-
-	__asm("bsfq %1,%0" : "=r" (result) : "rm" (mask) : "cc");
-	return (result);
-}
-
 static __inline u_int
 bsrl(u_int mask)
 {
@@ -108,6 +99,15 @@ bsrq(u_long mask)
 	u_long	result;
 
 	__asm("bsrq %1,%0" : "=r" (result) : "rm" (mask) : "cc");
+	return (result);
+}
+
+static __inline u_long
+bsfq(u_long mask)
+{
+	u_long	result;
+
+	__asm("bsfq %1,%0" : "=r" (result) : "rm" (mask) : "cc");
 	return (result);
 }
 #endif
@@ -176,6 +176,14 @@ flsl(long mask)
 	return (mask == 0 ? mask : (int)bsrq((u_long)mask) + 1);
 }
 
+#define	HAVE_INLINE_FFSL
+
+static __inline int
+ffsl(long mask)
+{
+	return (mask == 0 ? mask : (int)bsfq((u_long)mask) + 1);
+}
+
 #else
 
 static __inline int
@@ -191,14 +199,6 @@ ffs(int mask)
 }
 
 #endif /* __amd64__ */
-
-#define	HAVE_INLINE_FFSL
-
-static __inline int
-ffsl(long mask)
-{
-	return (mask == 0 ? mask : (int)bsfq((u_long)mask) + 1);
-}
 
 #define	HAVE_INLINE_FLS
 
