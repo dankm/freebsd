@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/atomic.h>
+#include <x86/atomic.h>
