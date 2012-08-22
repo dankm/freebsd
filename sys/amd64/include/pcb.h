@@ -34,12 +34,6 @@
  * $FreeBSD$
  */
 
-#ifndef __x86_64__
-
-#include <i386/pcb.h>
-
-#else
-
 #ifndef _MACHINE_PCB_H_
 #define _MACHINE_PCB_H_
 
@@ -49,69 +43,7 @@
 #include <machine/fpu.h>
 #include <machine/segments.h>
 
-struct pcb {
-	register_t	pcb_r15;
-	register_t	pcb_r14;
-	register_t	pcb_r13;
-	register_t	pcb_r12;
-	register_t	pcb_rbp;
-	register_t	pcb_rsp;
-	register_t	pcb_rbx;
-	register_t	pcb_rip;
-	register_t	pcb_fsbase;
-	register_t	pcb_gsbase;
-	register_t	pcb_kgsbase;
-	register_t	pcb_cr0;
-	register_t	pcb_cr2;
-	register_t	pcb_cr3;
-	register_t	pcb_cr4;
-	register_t	pcb_dr0;
-	register_t	pcb_dr1;
-	register_t	pcb_dr2;
-	register_t	pcb_dr3;
-	register_t	pcb_dr6;
-	register_t	pcb_dr7;
-
-	struct region_descriptor pcb_gdt;
-	struct region_descriptor pcb_idt;
-	struct region_descriptor pcb_ldt;
-	uint16_t	pcb_tr;
-
-	u_int		pcb_flags;
-#define	PCB_FULL_IRET	0x01	/* full iret is required */
-#define	PCB_DBREGS	0x02	/* process using debug registers */
-#define	PCB_KERNFPU	0x04	/* kernel uses fpu */
-#define	PCB_FPUINITDONE	0x08	/* fpu state is initialized */
-#define	PCB_USERFPUINITDONE 0x10 /* fpu user state is initialized */
-#define	PCB_GS32BIT	0x20	/* linux gs switch */
-#define	PCB_32BIT	0x40	/* process has 32 bit context (segs etc) */
-
-	uint16_t	pcb_initial_fpucw;
-
-	/* copyin/out fault recovery */
-	caddr_t		pcb_onfault;
-
-	/* 32-bit segment descriptor */
-	struct user_segment_descriptor pcb_gs32sd;
-
-	/* local tss, with i/o bitmap; NULL for common */
-	struct amd64tss *pcb_tssp;
-
-	/* model specific registers */
-	register_t	pcb_efer;
-	register_t	pcb_star;
-	register_t	pcb_lstar;
-	register_t	pcb_cstar;
-	register_t	pcb_sfmask;
-	register_t	pcb_xsmask;
-
-	/* fpu context for suspend/resume */
-	void		*pcb_fpususpend;
-
-	struct savefpu	*pcb_save;
-
-	uint64_t	pcb_pad[3];
-};
+#include <x86/pcb.h>
 
 #ifdef _KERNEL
 struct trapframe;
@@ -153,4 +85,3 @@ void	resumectx(struct pcb *);
 #endif
 
 #endif /* _MACHINE_PCB_H_ */
-#endif /* !__x86_64__ */
