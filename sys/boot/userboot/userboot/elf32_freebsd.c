@@ -27,12 +27,14 @@
 #include <sys/cdefs.h>
 __FBSDID("$FreeBSD$");
 
+#define __ELF_WORD_SIZE 32
+
 #include <sys/param.h>
 #include <sys/exec.h>
 #include <sys/linker.h>
 #include <string.h>
 #include <i386/include/bootinfo.h>
-#include <i386/include/elf.h>
+#include <x86/include/elf.h>
 #include <stand.h>
 
 #include "bootstrap.h"

@@ -140,7 +140,7 @@ bi_checkcpu(void)
     /* Check for presence of "cpuid". */
     eflags = read_flags();
     write_flags(eflags ^ PSL_ID);
-    if (!((eflags ^ read_eflags()) & PSL_ID))
+    if (!((eflags ^ read_flags()) & PSL_ID))
 	return (0);
 
     /* Fetch the vendor string. */

@@ -33,17 +33,28 @@
  * ELF definitions for the i386 and AMD64 architectures.
  */
 
-#ifndef __ELF_WORD_SIZE
+#if !defined(__ELF_WORD_SIZE)
+#ifdef __amd64__
 #define	__ELF_WORD_SIZE	64	/* Used by <sys/elf_generic.h> */
+#else
+#define __ELF_WORD_SIZE 32
+#endif
 #endif
 #include <sys/elf32.h>	/* Definitions common to all 32 bit architectures. */
+#if defined(__ELF_WORD_SIZE) && __ELF_WORD_SIZE == 64
 #include <sys/elf64.h>	/* Definitions common to all 64 bit architectures. */
+#endif
 #include <sys/elf_generic.h>
 
+#ifdef __amd64__
 #define	ELF_ARCH	EM_X86_64
 #define	ELF_ARCH32	EM_386
-
 #define	ELF_MACHINE_OK(x) ((x) == EM_X86_64)
+#else
+#define	ELF_ARCH	EM_386
+#define ELF_MACHINE_OK(x) ((x) == EM_386 || (x) == EM_486)
+#endif
+
 
 /*
  * Auxiliary vector entries for passing information to the interpreter.
