@@ -122,9 +122,9 @@ LDADD=	${LIBFICL} ${LIBFIREWIRE} ${LIBZFSBOOT} ${LIBI386} ${LIBSTAND}
 
 .include <bsd.prog.mk>
 
-.if ${MACHINE_CPUARCH} == "amd64"
-beforedepend ${OBJS}: machine
-CLEANFILES+=	machine
+beforedepend ${OBJS}: machine x86
+CLEANFILES+=	machine x86
 machine:
 	ln -sf ${.CURDIR}/../../../i386/include machine
-.endif
+x86:
+	ln -sf ${.CURDIR}/../../../x86/include x86

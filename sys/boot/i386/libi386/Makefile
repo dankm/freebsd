@@ -52,10 +52,12 @@ CFLAGS+=	-I${.CURDIR}/../../common -I${.CURDIR}/../common \
 # the location of libstand
 CFLAGS+=	-I${.CURDIR}/../../../../lib/libstand/
 
-.if ${MACHINE_CPUARCH} == "amd64"
-CLEANFILES+=	machine
+.if ${MACHINE_CPUARCH} == "amd64" || ${MACHINE_CPUARCH} == "i386"
+CLEANFILES+=	machine x86
 machine:
 	ln -sf ${.CURDIR}/../../../i386/include machine
+x86:
+	ln -sf ${.CURDIR}/../../../x86/include x86
 .endif
 
 .include <bsd.lib.mk>
@@ -64,6 +66,6 @@ machine:
 CFLAGS.amd64_tramp.S=	${CLANG_NO_IAS}
 CFLAGS+=		${CFLAGS.${.IMPSRC:T}}
 
-.if ${MACHINE_CPUARCH} == "amd64"
-beforedepend ${OBJS}: machine
+.if ${MACHINE_CPUARCH} == "amd64" || ${MACHINE_CPUARCH} == "i386"
+beforedepend ${OBJS}: machine x86
 .endif

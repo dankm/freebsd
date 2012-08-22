@@ -64,12 +64,12 @@ gptzfsboot.out: ${BTXCRT} zfsboot.o sio.o gpt.o drv.o cons.o util.o
 
 zfsboot.o: ${.CURDIR}/../../zfs/zfsimpl.c
 
-.if ${MACHINE_CPUARCH} == "amd64"
-beforedepend zfsboot.o: machine
-CLEANFILES+=	machine
+beforedepend zfsboot.o: machine x86
+CLEANFILES+=	machine x86
 machine:
 	ln -sf ${.CURDIR}/../../../i386/include machine
-.endif
+x86:
+	ln -sf ${.CURDIR}/../../../x86/include x86
 
 .include <bsd.prog.mk>
 

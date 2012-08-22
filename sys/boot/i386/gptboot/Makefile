@@ -66,12 +66,12 @@ gptboot.out: ${BTXCRT} gptboot.o sio.o gpt.o crc32.o drv.o cons.o util.o
 
 gptboot.o: ${.CURDIR}/../../common/ufsread.c
 
-.if ${MACHINE_CPUARCH} == "amd64"
-beforedepend gptboot.o: machine
-CLEANFILES+=	machine
+beforedepend gptboot.o: machine x86
+CLEANFILES+=	machine x86
 machine:
 	ln -sf ${.CURDIR}/../../../i386/include machine
-.endif
+x86:
+	ln -sf ${.CURDIR}/../../../x86/include x86
 
 .include <bsd.prog.mk>
 

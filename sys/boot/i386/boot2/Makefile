@@ -99,12 +99,12 @@ boot2.h: boot1.out
 	    ORG1=`printf "%d" ${ORG1}` \
 	    REL1=`printf "%d" ${REL1}` > ${.TARGET}
 
-.if ${MACHINE_CPUARCH} == "amd64"
-beforedepend boot2.s: machine
-CLEANFILES+=	machine
+beforedepend boot2.s: machine x86
+CLEANFILES+=	machine x86
 machine:
 	ln -sf ${.CURDIR}/../../../i386/include machine
-.endif
+x86:
+	ln -sf ${.CURDIR}/../../../x86/include x86
 
 .include <bsd.prog.mk>
 
