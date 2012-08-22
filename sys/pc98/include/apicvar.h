@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/apicvar.h>
+#include <x86/apicvar.h>
