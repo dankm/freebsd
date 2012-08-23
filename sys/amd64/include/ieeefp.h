@@ -35,8 +35,8 @@
  * $FreeBSD$
  */
 
-#ifndef _AMD64_IEEEFP_H_
-#define _AMD64_IEEEFP_H_
+#ifndef _MACHINE_IEEEFP_H_
+#define _MACHINE_IEEEFP_H_
 
 /*
  * Deprecated historical FPU control interface
@@ -48,8 +48,6 @@
 #ifndef _SYS_CDEFS_H_
 #error this file needs sys/cdefs.h as a prerequisite
 #endif
-
-#ifdef __x86_64__
 
 /*
  * Rounding modes.
@@ -307,9 +305,4 @@ __END_DECLS
 
 #endif /* !__IEEEFP_NOINLINES__ && __GNUCLIKE_ASM */
 
-#else /* __x86_64__ */
-
-#include <i386/ieeefp.h>
-
-#endif
-#endif /* !_AMD64_IEEEFP_H_ */
+#endif /* !_MACHINE_IEEEFP_H_ */
