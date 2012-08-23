@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/gdb_machdep.h>
+#include <x86/gdb_machdep.h>
