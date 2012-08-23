@@ -29,7 +29,7 @@
 #ifndef _MACHINE_GDB_MACHDEP_H_
 #define	_MACHINE_GDB_MACHDEP_H_
 
-#if __amd64__
+#ifdef __amd64__
 #define	GDB_BUFSZ	(GDB_NREGS * 16)
 #define	GDB_NREGS	56
 #define	GDB_REG_PC	16
