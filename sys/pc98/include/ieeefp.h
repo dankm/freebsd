@@ -3,4 +3,4 @@
  */
 /* $FreeBSD$ */
 
-#include <i386/ieeefp.h>
+#include <x86/ieeefp.h>
