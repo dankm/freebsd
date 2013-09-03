@@ -1,4 +1,4 @@
-# $FreeBSD$
+# $FreeBSD: head/share/timedef/Makefile 196814 2009-09-04 06:26:40Z ache $
 
 LOCALES=	am_ET.UTF-8 \
 		be_BY.CP1131 \
@@ -19,6 +19,7 @@ LOCALES=	am_ET.UTF-8 \
 		de_DE.UTF-8 \
 		el_GR.ISO8859-7 \
 		el_GR.UTF-8 \
+		en_CA.ISO8859-1 \
 		en_GB.ISO8859-1 \
 		en_US.ISO8859-1 \
 		es_ES.ISO8859-1 \
@@ -28,6 +29,8 @@ LOCALES=	am_ET.UTF-8 \
 		eu_ES.ISO8859-1 \
 		fi_FI.ISO8859-1 \
 		fi_FI.UTF-8 \
+		fr_CA.ISO8859-1 \
+		fr_CA.UTF-8 \
 		fr_FR.ISO8859-1 \
 		fr_FR.UTF-8 \
 		he_IL.UTF-8 \
@@ -118,11 +121,11 @@ ENCODINGS=	Big5HKSCS CP949 eucKR GB2312 GBK \
 
 CA_LINKS=	ca_ES:ca_AD ca_ES:ca_FR ca_ES:ca_IT
 DE_LINKS=	de_DE:de_CH
-FR_LINKS=	fr_FR:fr_BE fr_FR:fr_CA fr_FR:fr_CH
+FR_LINKS=	fr_FR:fr_BE fr_FR:fr_CH
 IT_LINKS=	it_IT:it_CH
 NL_LINKS=	nl_NL:nl_BE
 NO_LINKS=	nb_NO:no_NO
-GB_LINKS=	en_GB:en_AU en_GB:en_CA en_GB:en_NZ
+GB_LINKS=	en_GB:en_AU en_GB:en_NZ
 
 eucKR_CP949=	ko_KR
 GB2312_GBK=	zh_CN
@@ -133,10 +136,10 @@ ISO8859-1_ISO8859-15= ca_ES da_DK de_AT de_DE en_GB en_US es_ES eu_ES \
 		sv_SE \
 		${CA_LINKS} ${DE_LINKS} ${FR_LINKS} ${GB_LINKS} ${IT_LINKS} \
 		${NL_LINKS}
-ISO8859-1_US-ASCII= ${GB_LINKS} en_GB en_US la_LN
+ISO8859-1_US-ASCII= ${GB_LINKS} en_CA en_GB en_US la_LN
 ISO8859-1_ISO8859-2= la_LN
 ISO8859-1_ISO8859-4= la_LN
-ISO8859-1_UTF-8= en_GB en_US eu_ES nl_NL
+ISO8859-1_UTF-8= en_CA en_GB en_US eu_ES nl_NL
 ISO8859-15_ISO8859-15= en_US:af_ZA
 UTF-8_Big5HKSCS= zh_TW:zh_HK
 UTF-8_UTF-8=	${CA_LINKS} ${DE_LINKS} ${FR_LINKS} ${GB_LINKS} ${IT_LINKS} \
