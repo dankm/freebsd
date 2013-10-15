@@ -35,6 +35,7 @@
 __FBSDID("$FreeBSD$");
 
 #include <sys/param.h>
+#include <sys/kdb.h>
 #include <sys/ktr.h>
 #include <sys/lock.h>
 #include <sys/lock_profile.h>
@@ -472,6 +473,9 @@ __lockmgr_args(struct lock *lk, u_int flags, struct lock_object *ilk,
 	KASSERT((flags & LK_INTERLOCK) == 0 || ilk != NULL,
 	    ("%s: LK_INTERLOCK passed without valid interlock @ %s:%d",
 	    __func__, file, line));
+	KASSERT(kdb_active != 0 || !TD_IS_IDLETHREAD(curthread),
+	    ("%s: idle thread %p on lockmgr %s @ %s:%d", __func__, curthread,
+	    lk->lock_object.lo_name, file, line));
 
 	class = (flags & LK_INTERLOCK) ? LOCK_CLASS(ilk) : NULL;
 	if (panicstr != NULL) {
@@ -486,6 +490,7 @@ __lockmgr_args(struct lock *lk, u_int flags, struct lock_object *ilk,
 			op = LK_EXCLUSIVE;
 			break;
 		case LK_UPGRADE:
+		case LK_TRYUPGRADE:
 		case LK_DOWNGRADE:
 			_lockmgr_assert(lk, KA_XLOCKED | KA_NOTRECURSED,
 			    file, line);
@@ -683,6 +688,7 @@ __lockmgr_args(struct lock *lk, u_int flags, struct lock_object *ilk,
 		}
 		break;
 	case LK_UPGRADE:
+	case LK_TRYUPGRADE:
 		_lockmgr_assert(lk, KA_SLOCKED, file, line);
 		v = lk->lk_lock;
 		x = v & LK_ALL_WAITERS;
@@ -699,6 +705,17 @@ __lockmgr_args(struct lock *lk, u_int flags, struct lock_object *ilk,
 			WITNESS_UPGRADE(&lk->lock_object, LOP_EXCLUSIVE |
 			    LK_TRYWIT(flags), file, line);
 			TD_SLOCKS_DEC(curthread);
+			break;
+		}
+
+		/*
+		 * In LK_TRYUPGRADE mode, do not drop the lock,
+		 * returning EBUSY instead.
+		 */
+		if (op == LK_TRYUPGRADE) {
+			LOCK_LOG2(lk, "%s: %p failed the nowait upgrade",
+			    __func__, lk);
+			error = EBUSY;
 			break;
 		}
 

@@ -76,7 +76,6 @@ typedef enum {
 } ada_state;
 
 typedef enum {
-	ADA_FLAG_PACK_INVALID	= 0x0001,
 	ADA_FLAG_CAN_48BIT	= 0x0002,
 	ADA_FLAG_CAN_FLUSHCACHE	= 0x0004,
 	ADA_FLAG_CAN_NCQ	= 0x0008,
@@ -88,7 +87,8 @@ typedef enum {
 	ADA_FLAG_SCTX_INIT	= 0x0200,
 	ADA_FLAG_CAN_CFA        = 0x0400,
 	ADA_FLAG_CAN_POWERMGT   = 0x0800,
-	ADA_FLAG_CAN_DMA48	= 0x1000
+	ADA_FLAG_CAN_DMA48	= 0x1000,
+	ADA_FLAG_DIRTY		= 0x2000
 } ada_flags;
 
 typedef enum {
@@ -350,6 +350,14 @@ static struct ada_quirk_entry ada_quirk_table[] =
 	},
 	{
 		/*
+		 * Intel X25-M Series SSDs
+		 * 4k optimised & trim only works in 4k requests + 4k aligned
+		 */
+		{ T_DIRECT, SIP_MEDIA_FIXED, "*", "INTEL SSDSA2M*", "*" },
+		/*quirks*/ADA_Q_4K
+	},
+	{
+		/*
 		 * Kingston E100 Series SSDs
 		 * 4k optimised & trim only works in 4k requests + 4k aligned
 		 */
@@ -362,6 +370,22 @@ static struct ada_quirk_entry ada_quirk_table[] =
 		 * 4k optimised & trim only works in 4k requests + 4k aligned
 		 */
 		{ T_DIRECT, SIP_MEDIA_FIXED, "*", "KINGSTON SH103S3*", "*" },
+		/*quirks*/ADA_Q_4K
+	},
+	{
+		/*
+		 * Marvell SSDs (entry taken from OpenSolaris)
+		 * 4k optimised & trim only works in 4k requests + 4k aligned
+		 */
+		{ T_DIRECT, SIP_MEDIA_FIXED, "*", "MARVELL SD88SA02*", "*" },
+		/*quirks*/ADA_Q_4K
+	},
+	{
+		/*
+		 * OCZ Agility 2 SSDs
+		 * 4k optimised & trim only works in 4k requests + 4k aligned
+		 */
+		{ T_DIRECT, SIP_MEDIA_FIXED, "*", "OCZ-AGILITY2*", "*" },
 		/*quirks*/ADA_Q_4K
 	},
 	{
@@ -591,16 +615,11 @@ adaopen(struct disk *dp)
 		return (error);
 	}
 
-	softc = (struct ada_softc *)periph->softc;
-	softc->flags |= ADA_FLAG_OPEN;
-
 	CAM_DEBUG(periph->path, CAM_DEBUG_TRACE | CAM_DEBUG_PERIPH,
 	    ("adaopen\n"));
 
-	if ((softc->flags & ADA_FLAG_PACK_INVALID) != 0) {
-		/* Invalidate our pack information. */
-		softc->flags &= ~ADA_FLAG_PACK_INVALID;
-	}
+	softc = (struct ada_softc *)periph->softc;
+	softc->flags |= ADA_FLAG_OPEN;
 
 	cam_periph_unhold(periph);
 	cam_periph_unlock(periph);
@@ -613,6 +632,7 @@ adaclose(struct disk *dp)
 	struct	cam_periph *periph;
 	struct	ada_softc *softc;
 	union ccb *ccb;
+	int error;
 
 	periph = (struct cam_periph *)dp->d_drv1;
 	cam_periph_lock(periph);
@@ -628,8 +648,9 @@ adaclose(struct disk *dp)
 	    ("adaclose\n"));
 
 	/* We only sync the cache if the drive is capable of it. */
-	if ((softc->flags & ADA_FLAG_CAN_FLUSHCACHE) != 0 &&
-	    (softc->flags & ADA_FLAG_PACK_INVALID) == 0) {
+	if ((softc->flags & ADA_FLAG_DIRTY) != 0 &&
+	    (softc->flags & ADA_FLAG_CAN_FLUSHCACHE) != 0 &&
+	    (periph->flags & CAM_PERIPH_INVALID) == 0) {
 
 		ccb = cam_periph_getccb(periph, CAM_PRIORITY_NORMAL);
 		cam_fill_ataio(&ccb->ataio,
@@ -645,11 +666,13 @@ adaclose(struct disk *dp)
 			ata_48bit_cmd(&ccb->ataio, ATA_FLUSHCACHE48, 0, 0, 0);
 		else
 			ata_28bit_cmd(&ccb->ataio, ATA_FLUSHCACHE, 0, 0, 0);
-		cam_periph_runccb(ccb, adaerror, /*cam_flags*/0,
+		error = cam_periph_runccb(ccb, adaerror, /*cam_flags*/0,
 		    /*sense_flags*/0, softc->disk->d_devstat);
 
-		if ((ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP)
+		if (error != 0)
 			xpt_print(periph->path, "Synchronize cache failed\n");
+		else
+			softc->flags &= ~ADA_FLAG_DIRTY;
 		xpt_release_ccb(ccb);
 	}
 
@@ -704,7 +727,7 @@ adastrategy(struct bio *bp)
 	/*
 	 * If the device has been made invalid, error out
 	 */
-	if ((softc->flags & ADA_FLAG_PACK_INVALID)) {
+	if ((periph->flags & CAM_PERIPH_INVALID) != 0) {
 		cam_periph_unlock(periph);
 		biofinish(bp, NULL, ENXIO);
 		return;
@@ -755,7 +778,7 @@ adadump(void *arg, void *virtual, vm_offset_t physical, off_t offset, size_t len
 	lba = offset / secsize;
 	count = length / secsize;
 	
-	if ((softc->flags & ADA_FLAG_PACK_INVALID) != 0) {
+	if ((periph->flags & CAM_PERIPH_INVALID) != 0) {
 		cam_periph_unlock(periph);
 		return (ENXIO);
 	}
@@ -879,8 +902,6 @@ adaoninvalidate(struct cam_periph *periph)
 	 * De-register any async callbacks.
 	 */
 	xpt_register_async(0, adaasync, periph, periph->path);
-
-	softc->flags |= ADA_FLAG_PACK_INVALID;
 
 	/*
 	 * Return all queued I/O with ENXIO.
@@ -1025,8 +1046,6 @@ adaasync(void *callback_arg, u_int32_t code,
 		else
 		    break;
 		cam_periph_acquire(periph);
-		cam_freeze_devq_arg(periph->path,
-		    RELSIM_RELEASE_RUNLEVEL, CAM_RL_DEV + 1);
 		xpt_schedule(periph, CAM_PRIORITY_DEV);
 	}
 	default:
@@ -1045,7 +1064,7 @@ adasysctlinit(void *context, int pending)
 	periph = (struct cam_periph *)context;
 
 	/* periph was held for us when this task was enqueued */
-	if (periph->flags & CAM_PERIPH_INVALID) {
+	if ((periph->flags & CAM_PERIPH_INVALID) != 0) {
 		cam_periph_release(periph);
 		return;
 	}
@@ -1362,15 +1381,11 @@ adaregister(struct cam_periph *periph, void *arg)
 	    cgd->ident_data.support.command1 & ATA_SUPPORT_LOOKAHEAD) {
 		softc->state = ADA_STATE_RAHEAD;
 		cam_periph_acquire(periph);
-		cam_freeze_devq_arg(periph->path,
-		    RELSIM_RELEASE_RUNLEVEL, CAM_RL_DEV + 1);
 		xpt_schedule(periph, CAM_PRIORITY_DEV);
 	} else if (ADA_WC >= 0 &&
 	    cgd->ident_data.support.command1 & ATA_SUPPORT_WRITECACHE) {
 		softc->state = ADA_STATE_WCACHE;
 		cam_periph_acquire(periph);
-		cam_freeze_devq_arg(periph->path,
-		    RELSIM_RELEASE_RUNLEVEL, CAM_RL_DEV + 1);
 		xpt_schedule(periph, CAM_PRIORITY_DEV);
 	} else
 		softc->state = ADA_STATE_NORMAL;
@@ -1498,8 +1513,10 @@ adastart(struct cam_periph *periph, union ccb *start_ccb)
 			tag_code = 1;
 		}
 		switch (bp->bio_cmd) {
-		case BIO_READ:
 		case BIO_WRITE:
+			softc->flags |= ADA_FLAG_DIRTY;
+			/* FALLTHROUGH */
+		case BIO_READ:
 		{
 			uint64_t lba = bp->bio_pblkno;
 			uint16_t count = bp->bio_bcount / softc->params.secsize;
@@ -1657,11 +1674,9 @@ out:
 	case ADA_STATE_RAHEAD:
 	case ADA_STATE_WCACHE:
 	{
-		if (softc->flags & ADA_FLAG_PACK_INVALID) {
+		if ((periph->flags & CAM_PERIPH_INVALID) != 0) {
 			softc->state = ADA_STATE_NORMAL;
 			xpt_release_ccb(start_ccb);
-			cam_release_devq(periph->path,
-			    RELSIM_RELEASE_RUNLEVEL, 0, CAM_RL_DEV + 1, FALSE);
 			adaschedule(periph);
 			cam_periph_release_locked(periph);
 			return;
@@ -1685,6 +1700,7 @@ out:
 			    ATA_SF_ENAB_WCACHE : ATA_SF_DIS_WCACHE, 0, 0);
 			start_ccb->ccb_h.ccb_state = ADA_CCB_WCACHE;
 		}
+		start_ccb->ccb_h.flags |= CAM_DEV_QFREEZE;
 		xpt_action(start_ccb);
 		break;
 	}
@@ -1697,53 +1713,31 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 	struct ada_softc *softc;
 	struct ccb_ataio *ataio;
 	struct ccb_getdev *cgd;
+	struct cam_path *path;
+	int state;
 
 	softc = (struct ada_softc *)periph->softc;
 	ataio = &done_ccb->ataio;
+	path = done_ccb->ccb_h.path;
 
-	CAM_DEBUG(periph->path, CAM_DEBUG_TRACE, ("adadone\n"));
+	CAM_DEBUG(path, CAM_DEBUG_TRACE, ("adadone\n"));
 
-	switch (ataio->ccb_h.ccb_state & ADA_CCB_TYPE_MASK) {
+	state = ataio->ccb_h.ccb_state & ADA_CCB_TYPE_MASK;
+	switch (state) {
 	case ADA_CCB_BUFFER_IO:
 	case ADA_CCB_TRIM:
 	{
 		struct bio *bp;
+		int error;
 
-		bp = (struct bio *)done_ccb->ccb_h.ccb_bp;
 		if ((done_ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
-			int error;
-			
 			error = adaerror(done_ccb, 0, 0);
 			if (error == ERESTART) {
 				/* A retry was scheduled, so just return. */
 				return;
 			}
-			if (error != 0) {
-				if (error == ENXIO &&
-				    (softc->flags & ADA_FLAG_PACK_INVALID) == 0) {
-					/*
-					 * Catastrophic error.  Mark our pack as
-					 * invalid.
-					 */
-					/*
-					 * XXX See if this is really a media
-					 * XXX change first?
-					 */
-					xpt_print(periph->path,
-					    "Invalidating pack\n");
-					softc->flags |= ADA_FLAG_PACK_INVALID;
-				}
-				bp->bio_error = error;
-				bp->bio_resid = bp->bio_bcount;
-				bp->bio_flags |= BIO_ERROR;
-			} else {
-				bp->bio_resid = ataio->resid;
-				bp->bio_error = 0;
-				if (bp->bio_resid != 0)
-					bp->bio_flags |= BIO_ERROR;
-			}
 			if ((done_ccb->ccb_h.status & CAM_DEV_QFRZN) != 0)
-				cam_release_devq(done_ccb->ccb_h.path,
+				cam_release_devq(path,
 						 /*relsim_flags*/0,
 						 /*reduction*/0,
 						 /*timeout*/0,
@@ -1751,26 +1745,38 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 		} else {
 			if ((done_ccb->ccb_h.status & CAM_DEV_QFRZN) != 0)
 				panic("REQ_CMP with QFRZN");
-			bp->bio_resid = ataio->resid;
-			if (ataio->resid > 0)
+			error = 0;
+		}
+		bp = (struct bio *)done_ccb->ccb_h.ccb_bp;
+		bp->bio_error = error;
+		if (error != 0) {
+			bp->bio_resid = bp->bio_bcount;
+			bp->bio_flags |= BIO_ERROR;
+		} else {
+			if (state == ADA_CCB_TRIM)
+				bp->bio_resid = 0;
+			else
+				bp->bio_resid = ataio->resid;
+			if (bp->bio_resid > 0)
 				bp->bio_flags |= BIO_ERROR;
 		}
 		softc->outstanding_cmds--;
 		if (softc->outstanding_cmds == 0)
 			softc->flags |= ADA_FLAG_WENT_IDLE;
-		if ((ataio->ccb_h.ccb_state & ADA_CCB_TYPE_MASK) ==
-		    ADA_CCB_TRIM) {
+		if (state == ADA_CCB_TRIM) {
 			struct trim_request *req =
 			    (struct trim_request *)ataio->data_ptr;
 			int i;
 
 			for (i = 1; i < TRIM_MAX_BIOS && req->bps[i]; i++) {
 				struct bio *bp1 = req->bps[i];
-				
-				bp1->bio_resid = bp->bio_resid;
+
 				bp1->bio_error = bp->bio_error;
-				if (bp->bio_flags & BIO_ERROR)
+				if (bp->bio_flags & BIO_ERROR) {
 					bp1->bio_flags |= BIO_ERROR;
+					bp1->bio_resid = bp1->bio_bcount;
+				} else
+					bp1->bio_resid = 0;
 				biodone(bp1);
 			}
 			softc->trim_running = 0;
@@ -1784,9 +1790,12 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 	{
 		if ((done_ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
 			if (adaerror(done_ccb, 0, 0) == ERESTART) {
+out:
+				/* Drop freeze taken due to CAM_DEV_QFREEZE */
+				cam_release_devq(path, 0, 0, 0, FALSE);
 				return;
 			} else if ((done_ccb->ccb_h.status & CAM_DEV_QFRZN) != 0) {
-				cam_release_devq(done_ccb->ccb_h.path,
+				cam_release_devq(path,
 				    /*relsim_flags*/0,
 				    /*reduction*/0,
 				    /*timeout*/0,
@@ -1803,7 +1812,7 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 		 * operation.
 		 */
 		cgd = (struct ccb_getdev *)done_ccb;
-		xpt_setup_ccb(&cgd->ccb_h, periph->path, CAM_PRIORITY_NORMAL);
+		xpt_setup_ccb(&cgd->ccb_h, path, CAM_PRIORITY_NORMAL);
 		cgd->ccb_h.func_code = XPT_GDEV_TYPE;
 		xpt_action((union ccb *)cgd);
 		if (ADA_WC >= 0 &&
@@ -1811,12 +1820,12 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 			softc->state = ADA_STATE_WCACHE;
 			xpt_release_ccb(done_ccb);
 			xpt_schedule(periph, CAM_PRIORITY_DEV);
-			return;
+			goto out;
 		}
 		softc->state = ADA_STATE_NORMAL;
 		xpt_release_ccb(done_ccb);
-		cam_release_devq(periph->path,
-		    RELSIM_RELEASE_RUNLEVEL, 0, CAM_RL_DEV + 1, FALSE);
+		/* Drop freeze taken due to CAM_DEV_QFREEZE */
+		cam_release_devq(path, 0, 0, 0, FALSE);
 		adaschedule(periph);
 		cam_periph_release_locked(periph);
 		return;
@@ -1825,9 +1834,9 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 	{
 		if ((done_ccb->ccb_h.status & CAM_STATUS_MASK) != CAM_REQ_CMP) {
 			if (adaerror(done_ccb, 0, 0) == ERESTART) {
-				return;
+				goto out;
 			} else if ((done_ccb->ccb_h.status & CAM_DEV_QFRZN) != 0) {
-				cam_release_devq(done_ccb->ccb_h.path,
+				cam_release_devq(path,
 				    /*relsim_flags*/0,
 				    /*reduction*/0,
 				    /*timeout*/0,
@@ -1845,8 +1854,8 @@ adadone(struct cam_periph *periph, union ccb *done_ccb)
 		 * operation.
 		 */
 		xpt_release_ccb(done_ccb);
-		cam_release_devq(periph->path,
-		    RELSIM_RELEASE_RUNLEVEL, 0, CAM_RL_DEV + 1, FALSE);
+		/* Drop freeze taken due to CAM_DEV_QFREEZE */
+		cam_release_devq(path, 0, 0, 0, FALSE);
 		adaschedule(periph);
 		cam_periph_release_locked(periph);
 		return;
