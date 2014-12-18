@@ -19,8 +19,7 @@ BOOT2_UFS?=	UFS1_AND_UFS2
 #BOOT2_UFS?=	UFS2_ONLY
 #BOOT2_UFS?=	UFS1_ONLY
 
-CFLAGS=	-Os \
-	-fomit-frame-pointer \
+CFLAGS=	-fomit-frame-pointer \
 	-mrtd \
 	-mregparm=3 \
 	-D${BOOT2_UFS} \
@@ -35,10 +34,10 @@ CFLAGS=	-Os \
 	-Wall -Waggregate-return -Wbad-function-cast -Wcast-align \
 	-Wmissing-declarations -Wmissing-prototypes -Wnested-externs \
 	-Wpointer-arith -Wshadow -Wstrict-prototypes -Wwrite-strings \
-	-Winline \
-	${CLANG_OPT_SMALL}
+	-Winline
 
-CFLAGS.gcc+=	-fno-guess-branch-probability \
+CFLAGS.gcc+=	-Os \
+		-fno-guess-branch-probability \
 		-fno-unit-at-a-time \
 		-mno-align-long-strings \
 		--param max-inline-insns-single=100
@@ -48,6 +47,8 @@ CFLAGS.gcc+=	-fno-guess-branch-probability \
 
 # Initialize the bi_bios_geom using the BIOS geometry
 #CFLAGS+=	-DGET_BIOSGEOM
+
+CFLAGS.clang+=	-Oz ${CLANG_OPT_SMALL}
 
 LD_FLAGS=-static -N --gc-sections
 

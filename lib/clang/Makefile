@@ -3,8 +3,7 @@
 .include <bsd.own.mk>
 
 .if !make(install)
-.if !defined(EARLY_BUILD)
-.if defined(MK_CLANG_FULL) && ${MK_CLANG_FULL} != "no"
+.if ${MK_CLANG_FULL} != "no"
 _libclangstaticanalyzer= \
 	libclangstaticanalyzercheckers \
 	libclangstaticanalyzercore \
@@ -12,13 +11,6 @@ _libclangstaticanalyzer= \
 _libclangarcmigrate= \
 	libclangarcmigrate
 .endif # MK_CLANG_FULL
-.if (defined(MK_CLANG_FULL) && ${MK_CLANG_FULL} != "no") || \
-    (defined(MK_LLDB) && ${MK_LLDB} != "no")
-_libclangrewriter= \
-	libclangrewritecore \
-	libclangrewritefrontend
-.endif # (MK_CLANG_FULL || MK_LLDB)
-.endif # !EARLY_BUILD
 
 SUBDIR=	libclanganalysis \
 	${_libclangarcmigrate} \
@@ -31,7 +23,8 @@ SUBDIR=	libclanganalysis \
 	libclangfrontendtool \
 	libclanglex \
 	libclangparse \
-	${_libclangrewriter} \
+	libclangrewritefrontend \
+	libclangrewrite \
 	libclangsema \
 	libclangserialization \
 	${_libclangstaticanalyzer} \
@@ -54,6 +47,7 @@ SUBDIR=	libclanganalysis \
 	libllvmobjcarcopts \
 	libllvmobject \
 	libllvmoption \
+	libllvmprofiledata \
 	libllvmscalaropts \
 	libllvmselectiondag \
 	libllvmsupport \
@@ -77,6 +71,7 @@ SUBDIR=	libclanganalysis \
 	libllvmpowerpcasmparser \
 	libllvmpowerpccodegen \
 	libllvmpowerpcdesc \
+	libllvmpowerpcdisassembler \
 	libllvmpowerpcinfo \
 	libllvmpowerpcinstprinter \
 	libllvmsparcasmparser \
@@ -94,7 +89,8 @@ SUBDIR=	libclanganalysis \
 	libllvmx86utils
 
 .if ${MK_CLANG_EXTRAS} != "no"
-SUBDIR+=libllvmdebuginfo
+SUBDIR+=libllvmdebuginfo \
+	libllvmmcanalysis
 .endif # MK_CLANG_EXTRAS
 .if ${MK_CLANG_EXTRAS} != "no" || ${MK_LLDB} != "no"
 SUBDIR+=libllvmexecutionengine \
@@ -105,7 +101,7 @@ SUBDIR+=libllvmexecutionengine \
 	libllvmruntimedyld
 .endif # MK_CLANG_EXTRAS | LLDB
 
-.if !defined(EARLY_BUILD) && ${MK_LLDB} != "no"
+.if ${MK_LLDB} != "no"
 SUBDIR+=liblldb \
 	\
 	liblldbAPI \
@@ -116,6 +112,7 @@ SUBDIR+=liblldb \
 	liblldbExpression \
 	liblldbHostCommon \
 	liblldbHostFreeBSD \
+	liblldbHostPOSIX \
 	liblldbInterpreter \
 	liblldbSymbol \
 	liblldbTarget \
@@ -127,8 +124,11 @@ SUBDIR+=liblldb \
 	liblldbPluginDynamicLoaderStatic \
 	liblldbPluginDynamicLoaderPosixDYLD \
 	liblldbPluginInstructionARM \
+	liblldbPluginInstructionARM64 \
+	liblldbPluginJITLoaderGDB \
 	liblldbPluginObjectContainerBSDArchive \
 	liblldbPluginObjectFileELF \
+	liblldbPluginObjectFileJIT \
 	liblldbPluginPlatformFreeBSD \
 	liblldbPluginPlatformGDB \
 	liblldbPluginProcessElfCore \
@@ -141,7 +141,7 @@ SUBDIR+=liblldb \
 	liblldbPluginSymbolVendorELF \
 	liblldbPluginUnwindAssemblyInstEmulation \
 	liblldbPluginUnwindAssemblyX86
-.endif # !EARLY_BUILD && MK_LLDB
+.endif # MK_LLDB
 
 .endif # !make(install)
 
