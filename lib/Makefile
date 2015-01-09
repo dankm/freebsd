@@ -37,6 +37,7 @@ SUBDIR=	${SUBDIR_ORDERED} \
 	libcam \
 	${_libcapsicum} \
 	${_libcasper} \
+	libclang_rt \
 	${_libcom_err} \
 	libcompat \
 	libcrypt \
