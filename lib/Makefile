@@ -34,6 +34,7 @@ SUBDIR=	${SUBDIR_ORDERED} \
 	libbz2 \
 	libcalendar \
 	libcam \
+	libclang_rt \
 	${_libcom_err} \
 	libcompat \
 	libcrypt \
