@@ -62,7 +62,7 @@ findvcs()
 	savedir=$(pwd)
 	cd ${SYSDIR}/..
 	while [ $(pwd) != "/" ]; do
-		if [ -d "./$1" ]; then
+		if [ -d "./$1" -o -f "./$1" ]; then
 			VCSDIR=$(pwd)"/$1"
 			cd ${savedir}
 			return 0
