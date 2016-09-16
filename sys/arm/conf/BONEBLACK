@@ -1,0 +1,20 @@
+include 	BEAGLEBONE
+
+ident		BONEBLACK
+
+#nooptions 	INVARIANTS
+#nooptions 	INVARIANT_SUPPORT
+#nooptions 	WITNESS
+#nooptions 	WITNESS_SKIPSPIN
+#nooptions 	DEADLKRES
+#nooptions 	USB_DEBUG
+
+# Comment following lines for boot console on serial port
+nodevice 	vt
+nodevice 	videomode
+nodevice 	hdmi
+nodevice 	ums
+nodevice 	ukbd
+nodevice 	kbdmux
+#nodevice 	axe
+
