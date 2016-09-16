@@ -831,11 +831,26 @@ SUBDIR:= ${SUBDIR:N${reject}}
 # Calling kldxref(8) for each module is expensive.
 .if !defined(NO_XREF)
 .MAKEFLAGS+=	-DNO_XREF
+
+.if defined(NO_ROOT)
+.info "Makefiles so far: ${.MAKE.MAKEFILES}
+METALOG.add?=	cat -l >> ${METALOG}
+.if ${INSTALL:M-D} && !defined(DISTBASE)
+DISTBASE=${DESTDIR:S,${INSTALL:C/^.*-D ([^[:space:]]+).*/\1/W},,}
+.endif
+.endif
+
 afterinstall: .PHONY
 	@if type kldxref >/dev/null 2>&1; then \
 		${ECHO} ${KLDXREF_CMD} ${DESTDIR}${KMODDIR}; \
 		${KLDXREF_CMD} ${DESTDIR}${KMODDIR}; \
 	fi
+# Install the hints file over itself so it gets put into the metalog.
+.if defined(NO_ROOT)
+	@if [ -e ${DESTDIR}${KMODDIR}/linker.hints ]; then \
+		echo ".${DISTBASE}${KMODDIR}/linker.hints type=file uname=${KMODOWN} gname=${KMODGRP} mode=${CONFMODE} tags=release" | ${METALOG.add} ; \
+	fi
+.endif
 .endif
 
 SUBDIR:= ${SUBDIR:u:O}
