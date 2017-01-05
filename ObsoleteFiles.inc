@@ -2260,7 +2260,6 @@ OLD_LIBS+=usr/lib32/private/libyaml.so.1
 OLD_FILES+=usr/lib32/private/libyaml_p.a
 # 20140216: new clang import which bumps version from 3.3 to 3.4.
 OLD_FILES+=usr/bin/llvm-prof
-OLD_FILES+=usr/bin/llvm-ranlib
 OLD_FILES+=usr/include/clang/3.3/__wmmintrin_aes.h
 OLD_FILES+=usr/include/clang/3.3/__wmmintrin_pclmul.h
 OLD_FILES+=usr/include/clang/3.3/altivec.h
@@ -2293,7 +2292,6 @@ OLD_FILES+=usr/include/clang/3.3/x86intrin.h
 OLD_FILES+=usr/include/clang/3.3/xmmintrin.h
 OLD_FILES+=usr/include/clang/3.3/xopintrin.h
 OLD_FILES+=usr/share/man/man1/llvm-prof.1.gz
-OLD_FILES+=usr/share/man/man1/llvm-ranlib.1.gz
 OLD_DIRS+=usr/include/clang/3.3
 # 20140216: nve(4) removed
 OLD_FILES+=usr/share/man/man4/if_nve.4.gz

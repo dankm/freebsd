@@ -1489,6 +1489,7 @@ OLD_FILES+=usr/bin/llvm-lto
 OLD_FILES+=usr/bin/llvm-mc
 OLD_FILES+=usr/bin/llvm-nm
 OLD_FILES+=usr/bin/llvm-pdbdump
+OLD_FILES+=usr/bin/llvm-ranlib
 OLD_FILES+=usr/bin/llvm-rtdyld
 OLD_FILES+=usr/bin/llvm-symbolizer
 OLD_FILES+=usr/bin/opt
@@ -1504,6 +1505,7 @@ OLD_FILES+=usr/share/man/man1/llvm-dwarfdump.1
 OLD_FILES+=usr/share/man/man1/llvm-extract.1.gz
 OLD_FILES+=usr/share/man/man1/llvm-link.1.gz
 OLD_FILES+=usr/share/man/man1/llvm-nm.1.gz
+OLD_FILES+=usr/share/man/man1/llvm-ranlib.1.gz
 OLD_FILES+=usr/share/man/man1/llvm-symbolizer.1.gz
 OLD_FILES+=usr/share/man/man1/opt.1.gz
 .endif
