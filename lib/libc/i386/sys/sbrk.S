@@ -43,6 +43,7 @@ __FBSDID("$FreeBSD$");
 	.globl	HIDENAME(curbrk)
 
 	.data
+CNAME(_end):		.long
 HIDENAME(minbrk):	.long	CNAME(_end)
 HIDENAME(curbrk):	.long	CNAME(_end)
 	.text
