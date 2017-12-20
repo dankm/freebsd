@@ -121,13 +121,14 @@ extern char **environ;
 static gid_t gid;
 static uid_t uid;
 static int dobackup, docompare, dodir, dolink, dopreserve, dostrip, dounpriv,
-    safecopy, verbose;
+    safecopy, verbose, doepoch;
 static int haveopt_f, haveopt_g, haveopt_m, haveopt_o;
 static mode_t mode = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 static FILE *metafp;
 static const char *group, *owner;
 static const char *suffix = BACKUP_SUFFIX;
 static char *destdir, *digest, *fflags, *metafile, *tags;
+static time_t epoch_time;
 
 static int	compare(int, const char *, size_t, int, const char *, size_t,
 		    char **);
@@ -279,6 +280,16 @@ main(int argc, char *argv[])
 	if (getenv("DONTSTRIP") != NULL) {
 		warnx("DONTSTRIP set - will not strip installed binaries");
 		dostrip = 0;
+	}
+
+	if (getenv("SOURCE_DATE_EPOCH") != NULL) {
+		char *e;
+		epoch_time = (time_t) strtoll(getenv("SOURCE_DATE_EPOCH"), &e, 10);
+		if (*e == '\0') {
+			doepoch = 1;
+		} else {
+			warnx("Invalid format for SOURCE_DATE_EPOCH");
+		}
 	}
 
 	/* must have at least two arguments, except when creating directories */
@@ -1470,7 +1481,10 @@ metadata_log(const char *path, const char *type, struct timespec *ts,
 	}
 	if (*type == 'f') /* type=file */
 		fprintf(metafp, " size=%lld", (long long)size);
-	if (ts != NULL && dopreserve)
+	if (doepoch)
+		fprintf(metafp, " time=%lld.%09ld",
+			(long long)epoch_time, 0l);
+	else if (ts != NULL && dopreserve)
 		fprintf(metafp, " time=%lld.%09ld",
 			(long long)ts[1].tv_sec, ts[1].tv_nsec);
 	if (digestresult && digest)
