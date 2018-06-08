@@ -42,7 +42,7 @@ FILESNAME= Makefile.dist
 FILESDIR= /var/yp
 SCRIPTS= ypinit.sh
 
-.if !exists(${DESTDIR}${FILESDIR}/Makefile)
+.if !exists(${DESTDIR}${FILESDIR}/Makefile) || defined(METALOG)
 SYMLINKS= ${FILESNAME} ${FILESDIR}/Makefile
 .endif
 

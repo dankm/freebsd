@@ -59,7 +59,7 @@ distribution:
 	${INSTALL_SYMLINK} -T "package=runtime" ../var/run/os-release \
 		${DESTDIR}/etc/os-release
 .if ${MK_UNBOUND} != "no"
-	if [ ! -e ${DESTDIR}/etc/unbound ]; then \
+	if [ ! -e ${DESTDIR}/etc/unbound -o "${METALOG}" ]; then \
 		${INSTALL_SYMLINK} -T "package=unbound" \
 		../var/unbound ${DESTDIR}/etc/unbound; \
 	fi
@@ -78,7 +78,7 @@ distribution:
 	cd ${.CURDIR}/mail; ${INSTALL} -o ${BINOWN} -g ${BINGRP} -m 644 \
 	    -T "package=runtime" ${ETCMAIL} ${DESTDIR}/etc/mail
 	if [ -d ${DESTDIR}/etc/mail -a -f ${DESTDIR}/etc/mail/aliases -a \
-	      ! -f ${DESTDIR}/etc/aliases ]; then \
+	      \( ! -f ${DESTDIR}/etc/aliases -o "${METALOG}" \) ]; then \
 		${INSTALL_SYMLINK} -T "package=runtime" \
 		mail/aliases ${DESTDIR}/etc/aliases; \
 	fi
