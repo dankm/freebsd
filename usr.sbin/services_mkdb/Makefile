@@ -9,17 +9,15 @@ SRCS=	services_mkdb.c uniq.c extern.h
 
 .include <bsd.endian.mk>
 .include <src.opts.mk>
-.if ${MK_SERVICESDB} != "no"
+.if !defined(BOOTSTRAPPING) && (${MK_SERVICESDB} != "no")
+CONFS+=	services.db
 # SERVICES_MKDB_CMD defined here
 .include <src.tools.mk>
 
-afterinstallconfig:
-	${SERVICES_MKDB_CMD} ${CAP_MKDB_ENDIAN} -q -o ${DESTDIR}/var/db/services.db \
-		${DESTDIR}/etc/services
-.if defined(NO_ROOT) && defined(METALOG)
-	echo "./var/db/services.db type=file mode=0644 uname=root gname=wheel" | \
-		cat -l >> ${METALOG}
-.endif
+services.db: services
+	${SERVICES_MKDB_CMD} ${CAP_MKDB_ENDIAN} -q -o ${.TARGET} ${.ALLSRC}
+
+CLEANFILES+=	services.db
 .endif
 
 .include <bsd.prog.mk>

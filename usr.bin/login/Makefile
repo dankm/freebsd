@@ -4,11 +4,13 @@
 .include <src.opts.mk>
 .include <src.tools.mk>
 
-CONFS=	fbtab login.conf motd.template login.access
+CONFS=	fbtab login.conf login.conf.db motd.template login.access
 PROG=	login
 SRCS=	login.c login_fbtab.c
 CFLAGS+=-DLOGALL
 LIBADD=	util pam
+
+CLEANFILES+=	login.conf.db
 
 WARNS?=	5
 
@@ -25,11 +27,8 @@ PRECIOUSPROG=
 .endif
 
 .include <bsd.endian.mk>
-afterinstallconfig:
-	${CAP_MKDB_CMD} ${CAP_MKDB_ENDIAN} ${DESTDIR}/etc/login.conf
-.if defined(NO_ROOT) && defined(METALOG)
-	echo "./etc/login.conf.db type=file mode=0644 uname=root gname=wheel" | \
-		cat -l >> ${METALOG}
-.endif
+
+login.conf.db: login.conf
+	${CAP_MKDB_CMD} ${CAP_MKDB_ENDIAN} -f ${.TARGET:S/.db//} ${.ALLSRC}
 
 .include <bsd.prog.mk>

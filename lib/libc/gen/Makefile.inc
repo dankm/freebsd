@@ -5,8 +5,21 @@
 .PATH: ${LIBC_SRCTOP}/${LIBC_ARCH}/gen ${LIBC_SRCTOP}/gen ${SRCTOP}/etc
 
 CONFS+=	group master.passwd shells
+CONFS+=	pwd.db spwd.db passwd
 CONFSMODE_master.passwd=	600
+CONFSMODE_spwd.db=	600
 CONFSPACKAGE=   runtime
+CLEANFILES+=	master.passwd
+CLEANFILES+=	pwd.db spwd.db passwd
+
+master.passwd: ${SRCTOP}/etc/master.passwd
+	cp ${.ALLSRC} ${.TARGET}
+.if ${MK_TCSH} == "no"
+	sed -i "" -e 's;/bin/csh;/bin/sh;' ${.TARGET}
+.endif
+
+pwd.db spwd.db passwd: master.passwd
+	${PWD_MKDB_CMD} -i -p -d ${.OBJDIR} ${.ALLSRC}
 
 SRCS+=	__getosreldate.c \
 	__pthread_mutex_init_calloc_cb_stub.c \
@@ -554,17 +567,3 @@ MLINKS+=vis.3 nvis.3 \
 MLINKS+=wordexp.3 wordfree.3
 
 .include <src.tools.mk>
-
-afterinstallconfig: install-passwd
-install-passwd: .PHONY
-.if ${MK_TCSH} == "no"
-	sed -i "" -e 's;/bin/csh;/bin/sh;' ${DESTDIR}/etc/master.passwd
-.endif
-	${PWD_MKDB_CMD} -i -p -d ${DESTDIR}/etc ${DESTDIR}/etc/master.passwd
-.if defined(NO_ROOT) && defined(METALOG)
-	( \
-		echo "./etc/pwd.db type=file mode=0644 uname=root gname=wheel"; \
-		echo "./etc/spwd.db type=file mode=0600 uname=root gname=wheel"; \
-		echo "./etc/passwd type=file mode=0644 uname=root gname=wheel"; \
-	) | cat -l >> ${METALOG}
-.endif
