@@ -16,6 +16,7 @@ CONFS=	README \
 
 CONFDIR=	/etc/pam.d
 CONFSMODE_README=	444
+LINKMODE=	${CONFSMODE}
 
 .if ${MK_AT} != "no"
 CONFGROUPS+=	AT
@@ -36,4 +37,4 @@ CONFGROUPS+=	TELNET
 TELNET+=	telnetd
 .endif
 
-.include <bsd.prog.mk>
+.include <bsd.lib.mk>

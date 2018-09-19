@@ -9,6 +9,7 @@ ROOT=	dot.shrc dot.profile
 ROOTDIR=	/root
 ROOTNAME_dot.shrc=	.shrc
 ROOTNAME_dot.profile=	.profile
+LINKMODE=	${ROOTMODE}
 PACKAGE=runtime
 PROG=	sh
 INSTALLFLAGS= -S

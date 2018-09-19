@@ -159,6 +159,7 @@ beforeinstallconfig:
 	rm -f ${DESTDIR}/.cshrc
 
 afterinstallconfig:
-	${INSTALL_LINK} ${TAG_ARGS} ${DESTDIR}/root/.cshrc ${DESTDIR}/.cshrc
+	${INSTALL_LINK} -o ${CONFOWN} -g ${CONFGRP} -m ${CONFMODE} \
+		${TAG_ARGS} ${DESTDIR}/root/.cshrc ${DESTDIR}/.cshrc
 
 .include <bsd.prog.mk>
