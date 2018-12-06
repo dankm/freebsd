@@ -12,6 +12,7 @@ __<${_this:T}>__:
 LIBCOMPATWMAKEENV+= \
 		INSTALL="${INSTALL_CMD} -U" \
 		PATH=${TMPPATH} \
+		WORLD_SYSROOT=${WORLDTMP} \
 		SYSROOT=${LIBCOMPATTMP} \
 		LIBDIR=/usr/lib${libcompat} \
 		SHLIBDIR=/usr/lib${libcompat} \

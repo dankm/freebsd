@@ -247,6 +247,31 @@ SSP_CFLAGS?=	-fstack-protector-strong
 CFLAGS+=	${SSP_CFLAGS}
 .endif # SSP && !ARM && !MIPS
 
+.if ${COMPILER_FEATURES:Mfileprefixmap}
+CFLAGS+=	-ffile-prefix-map=${OBJTOP}/tmp/=/
+.if !empty(SYSROOT:N${OBJTOP}/tmp)
+CFLAGS+=	-ffile-prefix-map=${SYSROOT}/=/
+.endif
+.if !empty(WORLD_SYSROOT:N${OBJTOP}/tmp:N${SYSROOT})
+CFLAGS+=	-ffile-prefix-map=${WORLD_SYSROOT}/=/
+.endif
+.if !empty(LIBCOMPATTMP:N${OBJTOP}/tmp)
+CFLAGS+=	-ffile-prefix-map=${LIBCOMPATTMP}=/
+.endif
+.if ${MK_REPRODUCIBLE_BUILD:Uno} != "no"
+.if ${OBJTOP} != ${REPRODUCIBLE_OBJTOP}
+CFLAGS+=	-ffile-prefix-map=${OBJTOP}=${REPRODUCIBLE_OBJTOP}
+.endif
+.if ${SRCTOP} != ${REPRODUCIBLE_SRCTOP}
+CFLAGS+=	-ffile-prefix-map=${SRCTOP}=${REPRODUCIBLE_SRCTOP}
+.endif
+#.if defined(LIBCOMPAT_OBJTOP) && \
+#	${LIBCOMPAT_OBJTOP} != ${LIBCOMPAT_REPRODUCIBLE_OBJTOP}
+#CFLAGS+=	-ffile-prefix-map=${LIBCOMPAT_OBJTOP}=${LIBCOMPAT_REPRODUCIBLE_OBJTOP}
+#.endif
+.endif
+.endif
+
 # Additional flags passed in CFLAGS and CXXFLAGS when MK_DEBUG_FILES is
 # enabled.
 DEBUG_FILES_CFLAGS?= -g

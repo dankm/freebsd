@@ -283,6 +283,14 @@ PKG_CMD?=	pkg
 # overridden by Makefiles, but the user may choose to set this in src.conf(5).
 TESTSBASE?= /usr/tests
 
+# Canonical source and object directories, used to fake src roots in reproducible
+# builds
+REPRODUCIBLE_SRCTOP?=	/usr/src
+REPRODUCIBLE_SYSDIR?=	${REPRODUCIBLE_SRCTOP}/sys
+REPRODUCIBLE_OBJDIRPREFIX?=	/usr/obj
+REPRODUCIBLE_OBJROOT?=	${REPRODUCIBLE_OBJDIRPREFIX}${REPRODUCIBLE_SRCTOP}/
+REPRODUCIBLE_OBJTOP?=	${REPRODUCIBLE_OBJROOT}${MACHINE}.${MACHINE_ARCH}
+
 DEPENDFILE?=	.depend
 
 # Compat for the moment -- old bsd.own.mk only included this when _WITHOUT_SRCCONF
