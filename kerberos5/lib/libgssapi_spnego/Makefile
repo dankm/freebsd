@@ -1,5 +1,7 @@
 # $FreeBSD$
 
+.include <src.opts.mk>
+
 LIB=	gssapi_spnego
 LDFLAGS= -Wl,-Bsymbolic -Wl,--no-undefined
 LIBADD=	gssapi heimbase asn1 roken
@@ -42,6 +44,9 @@ ${GEN:[2..-1]}: .NOMETA
 ${GEN}: spnego.asn1 spnego.opt
 	${ASN1_COMPILE} --option-file=${.ALLSRC:M*.opt} \
 		${.ALLSRC:M*.asn1} spnego_asn1
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	sed -i '' "1s,${SRCTOP},${REPRODUCIBLE_SRCTOP}," ${GEN}
+.endif
 
 .SUFFIXES: .h .c .x .hx
 

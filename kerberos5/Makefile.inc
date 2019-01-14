@@ -44,6 +44,9 @@ ETSRCS+=	${KRB5DIR}/lib/gssapi/krb5/gkrb5_err.et
 ${_ET}.c: .NOMETA
 ${_ET}.h ${_ET}.c: ${ET}
 	compile_et ${.ALLSRC}
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	sed -i '' "1s,${SRCTOP},${REPRODUCIBLE_SRCTOP}," ${.TARGET:R}.h
+.endif
 CLEANFILES+=	${_ET}.h ${_ET}.c
 .endif
 .endfor

@@ -1,5 +1,7 @@
 # $FreeBSD$
 
+.include <src.opts.mk>
+
 LIB=	hx509
 LDFLAGS=	-Wl,--no-undefined
 VERSION_MAP= ${KRB5DIR}/lib/hx509/version-script.map
@@ -275,17 +277,26 @@ ${GEN_OCSP:[2..-1]}: .NOMETA
 ${GEN_OCSP}: ocsp.asn1 ocsp.opt
 	${ASN1_COMPILE} --option-file=${.ALLSRC:M*.opt} \
 	 ${.ALLSRC:M*.asn1} ocsp_asn1
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	sed -i '' "1s,${SRCTOP},${REPRODUCIBLE_SRCTOP}," ${GEN_OCSP}
+.endif
 
 .ORDER: ${GEN_PKCS10}
 ${GEN_PKCS10:[2..-1]}: .NOMETA
 ${GEN_PKCS10}: pkcs10.asn1 pkcs10.opt
 	${ASN1_COMPILE} --option-file=${.ALLSRC:M*.opt} \
 	${.ALLSRC:M*.asn1} pkcs10_asn1
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	sed -i '' "1s,${SRCTOP},${REPRODUCIBLE_SRCTOP}," ${GEN_PKCS10}
+.endif
 
 .ORDER: ${GEN_CRMF}
 ${GEN_CRMF:[2..-1]}: .NOMETA
 ${GEN_CRMF}: crmf.asn1
 	${ASN1_COMPILE} ${.ALLSRC:M*.asn1} crmf_asn1
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	sed -i '' "1s,${SRCTOP},${REPRODUCIBLE_SRCTOP}," ${GEN_CRMF}
+.endif
 
 .SUFFIXES: .h .c .x .hx
 

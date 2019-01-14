@@ -1,5 +1,7 @@
 # $FreeBSD$
 
+.include <src.opts.mk>
+
 LIB=	hdb
 LDFLAGS=	-Wl,--no-undefined ${LDAPLDFLAGS}
 VERSION_MAP=	${KRB5DIR}/lib/hdb/version-script.map
@@ -92,6 +94,9 @@ CLEANFILES=	${GEN} ${GEN:S/.x$/.c/:S/.hx$/.h/} hdb_asn1_files \
 ${GEN:[2..-1]}: .NOMETA
 ${GEN}: hdb.asn1
 	${ASN1_COMPILE} ${.ALLSRC:M*.asn1} hdb_asn1
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	sed -i '' "1s,${SRCTOP},${REPRODUCIBLE_SRCTOP}," ${GEN}
+.endif
 
 .SUFFIXES: .h .c .x .hx
 
