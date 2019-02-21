@@ -1,5 +1,7 @@
 # $FreeBSD$
 
+.include <src.opts.mk>
+
 .PATH: ${SRCTOP}/contrib/ntp/libntp \
 	${SRCTOP}/contrib/ntp/lib/isc \
 	${SRCTOP}/contrib/ntp/lib/isc/nls \
@@ -91,6 +93,9 @@ CFLAGS+= -DHAVE_BSD_NICE -DHAVE_STDINT_H -DHAVE_CLOSEFROM
 CLEANFILES+= .version version.c
 
 version.c:
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	-rm -f .version ;
+.endif
 	sh -e ${.CURDIR:H}/scripts/mkver ntpd
 
 .include <bsd.lib.mk>

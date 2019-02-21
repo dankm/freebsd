@@ -25,6 +25,9 @@ LIBADD+=	md
 CLEANFILES+= .version version.c
 
 version.c:
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+	-rm -f .version ;
+.endif
 	sh -e ${.CURDIR:H}/scripts/mkver ntpdate
 
 .include <bsd.prog.mk>
