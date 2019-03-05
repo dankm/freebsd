@@ -17,6 +17,7 @@ build-tools: ${SCRMAPS_MK}
 
 ${SCRMAPS}: ${.TARGET:R}.mk
 	${BTOOLSPATH:U.}/${.TARGET:R}.mk ${.TARGET:R}.tmp
+	chmod 644 ${.TARGET:R}.tmp
 	uuencode ${.TARGET:R}.tmp ${.TARGET:R} > ${.TARGET}
 	rm -f ${.TARGET:R}.tmp
 
