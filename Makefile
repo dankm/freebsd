@@ -199,6 +199,7 @@ META_TGT_WHITELIST+= \
 .ORDER: buildworld distribute
 .ORDER: buildworld distributeworld
 .ORDER: buildworld buildkernel
+.ORDER: distrib-dirs distribution
 .ORDER: distrib-dirs distribute
 .ORDER: distrib-dirs distributeworld
 .ORDER: distrib-dirs installworld

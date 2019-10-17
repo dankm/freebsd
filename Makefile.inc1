@@ -577,7 +577,7 @@ PKG_VERSION:=	${_REVISION}${EXTRA_REVISION:C/[[:space:]]//g}
 
 .if !defined(PKG_TIMESTAMP)
 TIMEEPOCHNOW=		%s
-SOURCE_DATE_EPOCH=	${TIMEEPOCHNOW:gmtime}
+SOURCE_DATE_EPOCH=	${TIMEEPOCHNOW:localtime}
 .else
 SOURCE_DATE_EPOCH=	${PKG_TIMESTAMP}
 .endif
@@ -1346,6 +1346,9 @@ DEBUG_DISTRIBUTIONS+=	base ${EXTRA_DISTRIBUTIONS:S,tests,,}
 .endif
 
 MTREE_MAGIC?=	mtree 2.0
+.if defined(SOURCE_DATE_EPOCH)
+MTREE_TIME?=	/set ${time=%s.000000000:L:${localtime=${SOURCE_DATE_EPOCH}:L}}
+.endif
 
 distributeworld installworld stageworld: _installcheck_world .PHONY
 	mkdir -p ${INSTALLTMP}
@@ -1374,6 +1377,8 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 .if defined(NO_ROOT)
 	-mkdir -p ${METALOG:H}
 	echo "#${MTREE_MAGIC}" > ${METALOG}
+	echo "${MTREE_TIME}" >> ${METALOG}
+	echo ". type=dir uname=root gname=wheel mode=0755" >> ${METALOG}
 .endif
 .if make(distributeworld)
 .for dist in ${EXTRA_DISTRIBUTIONS}
@@ -1406,15 +1411,32 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 .endif
 .endif
 .if defined(NO_ROOT)
+	echo "./${dist} type=dir uname=root gname=wheel mode=0755" >> ${METALOG}
 	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.root.dist | \
-	    sed -e 's#^\./#./${dist}/#' >> ${METALOG}
+	    sed -e 's#^\.#./${dist}#' >> ${METALOG}
 	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.usr.dist | \
-	    sed -e 's#^\./#./${dist}/usr/#' >> ${METALOG}
+	    sed -e 's#^\.#./${dist}/usr#' >> ${METALOG}
 	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.include.dist | \
-	    sed -e 's#^\./#./${dist}/usr/include/#' >> ${METALOG}
+	    sed -e 's#^\.#./${dist}/usr/include#' >> ${METALOG}
+.if ${MK_DEBUG_FILES} != "no"
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.debug.dist | \
+	    sed -e 's#^\.#./${dist}/usr/lib#' >> ${METALOG}
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.usr.dist | \
+	    sed -e 's#^\.#./${dist}/usr/lib/debug/usr#' >> ${METALOG}
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.tests.dist | \
+	    sed -e 's#^\.#./${dist}/usr/lib/debug${TESTSBASE}#' >> ${METALOG}
+.endif
 .if defined(_LIBCOMPAT)
 	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.lib${libcompat}.dist | \
-	    sed -e 's#^\./#./${dist}/usr/#' >> ${METALOG}
+	    sed -e 's#^\.#./${dist}/usr#' >> ${METALOG}
+.if ${MK_DEBUG_FILES} != "no"
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.lib${libcompat}.dist | \
+	    sed -e 's#^\.#./${dist}/usr/lib/debug/usr#' >> ${METALOG}
+.endif
+.endif
+.if ${MK_TESTS} != "no" && ${dist} == "tests"
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.tests.dist | \
+	    sed -e 's#^\.#./${dist}${TESTSBASE}#' >> ${METALOG}
 .endif
 .endif
 .endfor
@@ -1431,15 +1453,18 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 .for dist in ${EXTRA_DISTRIBUTIONS}
 	find ${DESTDIR}/${DISTDIR}/${dist} -mindepth 1 -type d -empty -delete
 .endfor
+.for dist in ${DEBUG_DISTRIBUTIONS}
+	find ${DESTDIR}/${DISTDIR}/${dist}/usr/lib/debug -mindepth 1 -type d -empty -delete
+.endfor
 .if defined(NO_ROOT)
 .for dist in base ${EXTRA_DISTRIBUTIONS}
 	@# For each file that exists in this dist, print the corresponding
 	@# line from the METALOG.  This relies on the fact that
 	@# a line containing only the filename will sort immediately before
 	@# the relevant mtree line.
-	cd ${DESTDIR}/${DISTDIR}; \
-	find ./${dist} | sort -u ${METALOG} - | \
-	awk 'BEGIN { print "#${MTREE_MAGIC}" } !/ type=/ { file = $$1 } / type=/ { if ($$1 == file) { sub(/^\.\/${dist}\//, "./"); print } }' > \
+	set -o pipefail; cd ${DESTDIR}/${DISTDIR}; \
+	{ find ./${dist} ; ${MTREE_CMD} -C -K all -f ${METALOG} | unvis ; } | sort -u | \
+	awk 'BEGIN { print "#${MTREE_MAGIC}" } !/ type=/ { file = $$1 } / type=/ { if ($$1 == file) { sub(/^\.\/${dist}/, "."); print } }' > \
 	${DESTDIR}/${DISTDIR}/${dist}.meta
 .endfor
 .for dist in ${DEBUG_DISTRIBUTIONS}
@@ -1447,9 +1472,9 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 	@# line from the METALOG.  This relies on the fact that
 	@# a line containing only the filename will sort immediately before
 	@# the relevant mtree line.
-	cd ${DESTDIR}/${DISTDIR}; \
-	find ./${dist}/usr/lib/debug | sort -u ${METALOG} - | \
-	awk 'BEGIN { print "#${MTREE_MAGIC}" } !/ type=/ { file = $$1 } / type=/ { if ($$1 == file) { sub(/^\.\/${dist}\//, "./"); print } }' > \
+	set -o pipefail ; cd ${DESTDIR}/${DISTDIR}; \
+	{ find ./${dist}/usr/lib/debug ; ${MTREE_CMD} -C -K all -f ${METALOG} | unvis ; } | sort -u | \
+	awk 'BEGIN { print "#${MTREE_MAGIC}" } !/ type=/ { file = $$1 } / type=/ { if ($$1 == file) { sub(/^\.\/${dist}/, "."); print } }' > \
 	${DESTDIR}/${DISTDIR}/${dist}.debug.meta
 .endfor
 .endif
@@ -1472,7 +1497,8 @@ packageworld: .PHONY
 	    ${XZ_CMD} > ${PACKAGEDIR}/${dist}.txz
 .else
 	${_+_}cd ${DESTDIR}/${DISTDIR}/${dist}; \
-	    tar cvf - --exclude usr/lib/debug . | \
+	    find . | sort | \
+	    tar cvf - -n -T - --exclude usr/lib/debug . | \
 	    ${XZ_CMD} > ${PACKAGEDIR}/${dist}.txz
 .endif
 .endfor
@@ -1484,7 +1510,8 @@ packageworld: .PHONY
 	    ${XZ_CMD} > ${PACKAGEDIR}/${dist}-dbg.txz
 . else
 	${_+_}cd ${DESTDIR}/${DISTDIR}/${dist}; \
-	    tar cvLf - usr/lib/debug | \
+	    find usr/lib/debug | sort | \
+	    tar cvLf - -n -T - usr/lib/debug | \
 	    ${XZ_CMD} > ${PACKAGEDIR}/${dist}-dbg.txz
 . endif
 .endfor
@@ -1738,7 +1765,7 @@ reinstallkernel reinstallkernel.debug: _installcheck_kernel .PHONY
 	@echo ">>> Installing kernel ${INSTALLKERNEL} on $$(LC_ALL=C date)"
 	@echo "--------------------------------------------------------------"
 	${_+_}cd ${KRNLOBJDIR}/${INSTALLKERNEL}; \
-	    ${CROSSENV} PATH=${TMPPATH} \
+	    ${CROSSENV} PATH=${TMPPATH} METALOG=${METALOG} \
 	    ${MAKE} ${IMAKE_INSTALL} KERNEL=${INSTKERNNAME} ${.TARGET:S/kernel//}
 	@echo "--------------------------------------------------------------"
 	@echo ">>> Installing kernel ${INSTALLKERNEL} completed on $$(LC_ALL=C date)"
@@ -1750,7 +1777,7 @@ reinstallkernel reinstallkernel.debug: _installcheck_kernel .PHONY
 	@echo ">>> Installing kernel ${_kernel} $$(LC_ALL=C date)"
 	@echo "--------------------------------------------------------------"
 	${_+_}cd ${KRNLOBJDIR}/${_kernel}; \
-	    ${CROSSENV} PATH=${TMPPATH} \
+	    ${CROSSENV} PATH=${TMPPATH} METALOG=${METALOG} \
 	    ${MAKE} ${IMAKE_INSTALL} KERNEL=${INSTKERNNAME}.${_kernel} ${.TARGET:S/kernel//}
 	@echo "--------------------------------------------------------------"
 	@echo ">>> Installing kernel ${_kernel} completed on $$(LC_ALL=C date)"
@@ -1766,33 +1793,52 @@ distributekernel distributekernel.debug: .PHONY
 .endif
 	mkdir -p ${DESTDIR}/${DISTDIR}
 .if defined(NO_ROOT)
-	@echo "#${MTREE_MAGIC}" > ${DESTDIR}/${DISTDIR}/kernel.premeta
+	echo "${MTREE_TIME}" > ${DESTDIR}/${DISTDIR}/kernel.premeta
+	echo ". type=dir uname=root gname=wheel mode=0755" >> ${DESTDIR}/${DISTDIR}/kernel.premeta
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.root.dist | \
+	    sed -e 's#^\.#./kernel#' >> ${DESTDIR}/${DISTDIR}/kernel.premeta
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.usr.dist | \
+	    sed -e 's#^\.#./kernel/usr#' >> ${DESTDIR}/${DISTDIR}/kernel.premeta
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.debug.dist | \
+	    sed -e 's#^\.#./kernel/usr/lib#' >> ${DESTDIR}/${DISTDIR}/kernel.premeta
 .endif
 	${_+_}cd ${KRNLOBJDIR}/${INSTALLKERNEL}; \
 	    ${IMAKEENV} ${IMAKE_INSTALL:S/METALOG/kernel.premeta/} \
 	    ${IMAKE_MTREE} PATH=${TMPPATH} ${MAKE} KERNEL=${INSTKERNNAME} \
 	    DESTDIR=${INSTALL_DDIR}/kernel \
+	    METALOG=${METALOG:S/METALOG/kernel.premeta/} \
 	    ${.TARGET:S/distributekernel/install/}
 .if defined(NO_ROOT)
-	@sed -e 's|^./kernel|.|' ${DESTDIR}/${DISTDIR}/kernel.premeta > \
-	    ${DESTDIR}/${DISTDIR}/kernel.meta
+	cd ${DESTDIR}/${DISTDIR}; \
+	( find ./kernel ; ${MTREE_CMD} -C -K all -f kernel.premeta | unvis ) | sort -u | \
+	awk 'BEGIN { print "#${MTREE_MAGIC}" } !/ type=/ { file = $$1 } / type=/ { if ($$1 == file) { sub(/^\.\/kernel/, "."); print } }' > \
+	${DESTDIR}/${DISTDIR}/kernel.meta
 .endif
 .endif
 .if ${BUILDKERNELS:[#]} > 1 && ${NO_INSTALLEXTRAKERNELS} != "yes"
 .for _kernel in ${BUILDKERNELS:[2..-1]}
 .if defined(NO_ROOT)
-	@echo "#${MTREE_MAGIC}" > ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta
+	echo "${MTREE_TIME}" > ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta
+	echo ". type=dir uname=root gname=wheel mode=0755" >> ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.root.dist | \
+	    sed -e 's#^\.#./kernel.${_kernel}#' >> ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.usr.dist | \
+	    sed -e 's#^\.#./kernel.${_kernel}/usr#' >> ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta
+	${IMAKEENV} ${DISTR_MTREE} -C -f ${.CURDIR}/etc/mtree/BSD.debug.dist | \
+	    sed -e 's#^\.#./kernel.${_kernel}/usr/lib#' >> ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta
 .endif
 	${_+_}cd ${KRNLOBJDIR}/${_kernel}; \
 	    ${IMAKEENV} ${IMAKE_INSTALL:S/METALOG/kernel.${_kernel}.premeta/} \
 	    ${IMAKE_MTREE} PATH=${TMPPATH} ${MAKE} \
 	    KERNEL=${INSTKERNNAME}.${_kernel} \
 	    DESTDIR=${INSTALL_DDIR}/kernel.${_kernel} \
+	    METALOG=${METALOG:S/METALOG/kernel.${_kernel}.premeta/} \
 	    ${.TARGET:S/distributekernel/install/}
 .if defined(NO_ROOT)
-	@sed -e "s|^./kernel.${_kernel}|.|" \
-	    ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.premeta > \
-	    ${DESTDIR}/${DISTDIR}/kernel.${_kernel}.meta
+	cd ${DESTDIR}/${DISTDIR}; \
+	( find ./kernel.${_kernel} ; ${MTREE_CMD} -C -K all -f kernel.${_kernel}.premeta | unvis ) | sort -u | \
+	awk 'BEGIN { print "#${MTREE_MAGIC}" } !/ type=/ { file = $$1 } / type=/ { if ($$1 == file) { sub(/^\.\/kernel.${_kernel}/, "."); print } }' > \
+	${DESTDIR}/${DISTDIR}/kernel.${_kernel}.meta
 .endif
 .endfor
 .endif
