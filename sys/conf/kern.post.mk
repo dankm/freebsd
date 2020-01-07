@@ -346,6 +346,18 @@ ${__obj}: ${OBJS_DEPEND_GUESS.${__obj}}
 .depend: .PRECIOUS ${SRCS}
 
 _MAP_DEBUG_PREFIX= yes
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+_sysroot=${CC:M--sysroot=*:[-1]:S,--sysroot=,,}
+_map_sysdir=${REPRODUCIBLE_SYSDIR}
+CFLAGS+= -ffile-prefix-map=${_sysroot}/=/
+CFLAGS+= -ffile-prefix-map=${SYSDIR}=${_map_sysdir}
+.if defined(REPRODUCIBLE_KOBJDIR) && \
+    "${REPRODUCIBLE_KOBJDIR}" != "${.OBJDIR}"
+CFLAGS+= -ffile-prefix-map=${.OBJDIR}=${REPRODUCIBLE_KOBJDIR}
+.endif
+.else
+_map_sysdir=${SYSDIR}
+.endif
 
 _ILINKS= machine
 .if ${MACHINE} != ${MACHINE_CPUARCH} && ${MACHINE} != "arm64"
@@ -363,9 +375,9 @@ ${SRCS} ${DEPENDOBJS}: ${_link}
 .endif
 .if defined(_MAP_DEBUG_PREFIX)
 .if ${_link} == "machine"
-CFLAGS+= -fdebug-prefix-map=./machine=${SYSDIR}/${MACHINE}/include
+CFLAGS+= -ffile-prefix-map=./machine=${_map_sysdir}/${MACHINE}/include
 .else
-CFLAGS+= -fdebug-prefix-map=./${_link}=${SYSDIR}/${_link}/include
+CFLAGS+= -ffile-prefix-map=./${_link}=${_map_sysdir}/${_link}/include
 .endif
 .endif
 .endfor

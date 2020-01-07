@@ -26,6 +26,8 @@ _srcconf_included_:
 
 # The kernel build always expects .OBJDIR=.CURDIR.
 .OBJDIR: ${.CURDIR}
+# This gets fed by Makefile.inc1 iff we're doing a reproducible build.
+REPRODUCIBLE_KOBJDIR?=	${.CURDIR}
 
 .if defined(NO_OBJWALK) || ${MK_AUTO_OBJ} == "yes"
 NO_OBJWALK=		t
@@ -345,6 +347,9 @@ __MPATH!=find ${S:tA}/ -name \*_if.m
 # them.
 
 MKMODULESENV+=	MAKEOBJDIRPREFIX=${.OBJDIR}/modules KMODDIR=${KODIR}
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+MKMODULESENV+=	REPRODUCIBLE_MODOBJDIR=${REPRODUCIBLE_KOBJDIR}/modules
+.endif
 MKMODULESENV+=	MACHINE_CPUARCH=${MACHINE_CPUARCH}
 MKMODULESENV+=	MACHINE=${MACHINE} MACHINE_ARCH=${MACHINE_ARCH}
 MKMODULESENV+=	MODULES_EXTRA="${MODULES_EXTRA}" WITHOUT_MODULES="${WITHOUT_MODULES}"

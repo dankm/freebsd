@@ -272,6 +272,18 @@ ${FULLPROG}: ${OBJS}
 .endif
 
 _MAP_DEBUG_PREFIX= yes
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+_sysroot=${CC:M--sysroot=*:[-1]:S,--sysroot=,,}
+_map_sysdir=${REPRODUCIBLE_SYSDIR}
+CFLAGS+= -ffile-prefix-map=${_sysroot}/=/
+CFLAGS+= -ffile-prefix-map=${SYSDIR}=${_map_sysdir}
+.if defined(REPRODUCIBLE_MODOBJDIR) && \
+    "${REPRODUCIBLE_MODOBJDIR}${REPRODUCIBLE_SYSDIR}" != "${MAKEOBJDIRPREFIX}${SYSDIR}"
+CFLAGS+= -ffile-prefix-map=${MAKEOBJDIRPREFIX}${SYSDIR}=${REPRODUCIBLE_MODOBJDIR}${REPRODUCIBLE_SYSDIR}
+.endif
+.else
+_map_sysdir=${SYSDIR}
+.endif
 
 _ILINKS=machine
 .if ${MACHINE_CPUARCH} == "i386" || ${MACHINE_CPUARCH} == "amd64"
@@ -293,9 +305,9 @@ OBJS_DEPEND_GUESS+=	${_link}
 .endif
 .if defined(_MAP_DEBUG_PREFIX)
 .if ${_link} == "machine"
-CFLAGS+= -fdebug-prefix-map=./machine=${SYSDIR}/${MACHINE}/include
+CFLAGS+= -ffile-prefix-map=./machine=${_map_sysdir}/${MACHINE}/include
 .else
-CFLAGS+= -fdebug-prefix-map=./${_link}=${SYSDIR}/${_link}/include
+CFLAGS+= -ffile-prefix-map=./${_link}=${_map_sysdir}/${_link}/include
 .endif
 .endif
 .endfor

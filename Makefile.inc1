@@ -1635,6 +1635,12 @@ KRNLCONFDIR=	${KERNSRCDIR}/${TARGET}/conf
 KRNLOBJDIR=	${OBJTOP}${KERNSRCDIR:C,^${.CURDIR},,}
 KERNCONFDIR?=	${KRNLCONFDIR}
 
+.if ${MK_REPRODUCIBLE_BUILD} != "no"
+REPRODUCIBLE_KRNLOBJDIR=	${REPRODUCIBLE_OBJTOP}${KERNSRCDIR:C,^${.CURDIR},,}
+.else
+REPRODUCIBLE_KRNLOBJDIR=	${KRNLOBJDIR}
+.endif
+
 BUILDKERNELS=
 INSTALLKERNEL=
 .if defined(NO_INSTALLKERNEL)
@@ -1717,7 +1723,8 @@ buildkernel: .MAKE .PHONY
 	@echo "--------------------------------------------------------------"
 	@echo ">>> stage 2.2: rebuilding the object tree"
 	@echo "--------------------------------------------------------------"
-	${_+_}cd ${KRNLOBJDIR}/${_kernel}; ${KMAKE} obj
+	${_+_}cd ${KRNLOBJDIR}/${_kernel}; ${KMAKE} obj \
+		REPRODUCIBLE_KOBJDIR=${REPRODUCIBLE_KRNLOBJDIR}/${_kernel}
 .endif
 	@echo
 	@echo "--------------------------------------------------------------"
@@ -1728,7 +1735,8 @@ buildkernel: .MAKE .PHONY
 	@echo "--------------------------------------------------------------"
 	@echo ">>> stage 3.1: building everything"
 	@echo "--------------------------------------------------------------"
-	${_+_}cd ${KRNLOBJDIR}/${_kernel}; ${KMAKE} all -DNO_MODULES_OBJ
+	${_+_}cd ${KRNLOBJDIR}/${_kernel}; ${KMAKE} all -DNO_MODULES_OBJ \
+		REPRODUCIBLE_KOBJDIR=${REPRODUCIBLE_KRNLOBJDIR}/${_kernel}
 	@echo "--------------------------------------------------------------"
 	@echo ">>> Kernel build for ${_kernel} completed on `LC_ALL=C date`"
 	@echo "--------------------------------------------------------------"
