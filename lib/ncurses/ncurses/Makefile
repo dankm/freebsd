@@ -394,6 +394,7 @@ curses.h: curses.head MKkey_defs.sh Caps Caps-ncurses
 	    ${NCURSES_DIR}/include/Caps ${NCURSES_DIR}/include/Caps-ncurses >> $@.new
 	cat ${NCURSES_DIR}/include/curses.wide >> $@.new
 	cat ${NCURSES_DIR}/include/curses.tail >> $@.new
+	sed -i '' -e "s@${SRCTOP}@${RELTOP}@g" $@.new
 	mv -f $@.new $@
 
 # Generated intermediate files
@@ -497,7 +498,8 @@ unctrl.h: unctrl.h.in
 # MAN page gunk
 terminfo.5: MKterminfo.sh terminfo.head Caps
 	sh ${NCURSES_DIR}/man/MKterminfo.sh ${NCURSES_DIR}/man/terminfo.head \
-	    ${NCURSES_DIR}/include/Caps ${NCURSES_DIR}/man/terminfo.tail >$@
+	    ${NCURSES_DIR}/include/Caps ${NCURSES_DIR}/man/terminfo.tail | \
+	    sed -e "s@${SRCTOP}@${RELTOP}@g" >$@
 
 CLEANFILES+=	terminfo.5
 
