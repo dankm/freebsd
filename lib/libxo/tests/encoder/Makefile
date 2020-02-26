@@ -18,4 +18,6 @@ CFLAGS+=	-I${LIBXOSRC}/libxo -I${.CURDIR:H:H}/libxo
 
 LIBADD=		xo
 
+DISTRIBUTION:=	tests
+
 .include <bsd.lib.mk>

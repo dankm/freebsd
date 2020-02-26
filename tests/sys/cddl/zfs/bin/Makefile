@@ -60,4 +60,6 @@ SRCS.$p=	$p.c
 LIBADD.mmapwrite+=	pthread
 LIBADD.rm_lnkcnt_zero_file+=	pthread
 
+DISTRIBUTION:=	tests
+
 .include <bsd.progs.mk>

@@ -236,7 +236,8 @@ DEBUGFILEDIR=${DEBUGDIR}${_SHLIBDIR}
 .else
 DEBUGFILEDIR=${_SHLIBDIR}/.debug
 .endif
-.if !exists(${DESTDIR}${DEBUGFILEDIR})
+.if !exists(${DESTDIR}${DEBUGFILEDIR}) || \
+	("${METALOG}" != "" && !${grep -s "${DEBUGFILEDIR} type=dir" ${METALOG} || true:L:sh})
 DEBUGMKDIR=
 .endif
 .else
@@ -467,7 +468,7 @@ _libinstall:
 	    ${SHLIB_NAME} ${DESTDIR}${_SHLIBDIR}/
 .if ${MK_DEBUG_FILES} != "no"
 .if defined(DEBUGMKDIR)
-	${INSTALL} ${TAG_ARGS:D${TAG_ARGS},dbg} -d ${DESTDIR}${DEBUGFILEDIR}/
+	${INSTALL} ${TAG_ARGS:D${TAG_ARGS},dbg} -d ${DESTDIR}${DEBUGFILEDIR}
 .endif
 	${INSTALL} ${TAG_ARGS:D${TAG_ARGS},dbg} -o ${LIBOWN} -g ${LIBGRP} -m ${DEBUGMODE} \
 	    ${_INSTALLFLAGS} \

@@ -7,5 +7,6 @@ LIBADD=		pthread
 
 TESTSDIR:=	${TESTSBASE}/${RELDIR:C/libc\/tests/libc/:H}
 
+DISTRIBUTION:=	tests
 
 .include <bsd.lib.mk>

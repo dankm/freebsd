@@ -12,4 +12,6 @@ SRCS=		pythagoras.c
 
 LIBADD=		m
 
+DISTRIBUTION:=	tests
+
 .include <bsd.lib.mk>

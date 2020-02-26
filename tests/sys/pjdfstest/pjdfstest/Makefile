@@ -10,4 +10,6 @@ MAN=
 
 CFLAGS+=	-I${.CURDIR:H}
 
+DISTRIBUTION:=	tests
+
 .include <bsd.prog.mk>

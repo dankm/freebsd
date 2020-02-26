@@ -291,6 +291,8 @@
             ..
             dynamiclib
             ..
+            dynamicpie
+            ..
             static
             ..
         ..
@@ -375,6 +377,8 @@
                 cap_dns
                 ..
                 cap_grp
+                ..
+                cap_net
                 ..
                 cap_pwd
                 ..
@@ -797,6 +801,8 @@
         mqueue
         ..
         net
+            routing
+            ..
         ..
         netgraph
         ..

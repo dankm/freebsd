@@ -129,7 +129,8 @@ DEBUGFILEDIR=	${DEBUGDIR}${BINDIR}
 .else
 DEBUGFILEDIR?=	${BINDIR}/.debug
 .endif
-.if !exists(${DESTDIR}${DEBUGFILEDIR})
+.if !exists(${DESTDIR}${DEBUGFILEDIR}) || \
+	("${METALOG}" != "" && !${grep -s "${DEBUGFILEDIR} type=dir" ${METALOG} || true:L:sh})
 DEBUGMKDIR=
 .endif
 .else

@@ -17,4 +17,6 @@ MAN=
 
 .include "../Makefile.netbsd-tests"
 
+DISTRIBUTION:=	tests
+
 .include <bsd.lib.mk>

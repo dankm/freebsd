@@ -20,6 +20,8 @@ SRCS+=	${src}.c
 SRCS+=	${src}.cc
 .endfor
 
-LIBDIR=		${TESTSBASE}/lib/csu/dynamiclib/
+LIBDIR=		${TESTSBASE}/lib/csu/dynamiclib
+
+DISTRIBUTION:=	tests
 
 .include <bsd.lib.mk>

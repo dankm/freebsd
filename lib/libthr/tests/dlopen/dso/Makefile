@@ -12,6 +12,8 @@ LIBADD+=	pthread
 
 LIBDIR=         ${TESTSBASE}/lib/libthr/dlopen
 
+DISTRIBUTION:=	tests
+
 .include <netbsd-tests.test.mk>
 
 .include <bsd.lib.mk>

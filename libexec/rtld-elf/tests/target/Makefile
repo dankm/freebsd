@@ -14,4 +14,6 @@ LDADD=		-lpythagoras
 
 MAN=
 
+DISTRIBUTION:=	tests
+
 .include <bsd.prog.mk>
