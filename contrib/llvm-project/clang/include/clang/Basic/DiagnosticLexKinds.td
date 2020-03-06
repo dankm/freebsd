@@ -659,6 +659,9 @@ def warn_pp_date_time : Warning<
   "expansion of date or time macro is not reproducible">,
   ShowInSystemHeader, DefaultIgnore, InGroup<DiagGroup<"date-time">>;
 
+def err_pp_source_date_epoch_syntax : Error<
+  "environment variable SOURCE_DATE_EPOCH must expand to a non-negative integer">;
+
 // Module map parsing
 def err_mmap_unknown_token : Error<"skipping stray token">;
 def err_mmap_expected_module : Error<"expected module declaration">;

@@ -1074,7 +1074,17 @@ void Preprocessor::removeCachedMacroExpandedTokensOfLastLexer() {
 /// the identifier tokens inserted.
 static void ComputeDATE_TIME(SourceLocation &DATELoc, SourceLocation &TIMELoc,
                              Preprocessor &PP) {
-  time_t TT = time(nullptr);
+  static const char *epoch = ::getenv("SOURCE_DATE_EPOCH");
+  char *EndPos = nullptr;
+  time_t TT;
+  if (epoch) {
+    TT = static_cast<time_t>(strtoll(epoch, &EndPos, 0));
+    if (EndPos == epoch || *EndPos != '\0' || TT < 0) {
+      PP.getDiagnostics().Report(diag::err_pp_source_date_epoch_syntax);
+    }
+  }
+  if (EndPos == nullptr)
+    TT = time(nullptr);
   struct tm *TM = localtime(&TT);
 
   static const char * const Months[] = {
