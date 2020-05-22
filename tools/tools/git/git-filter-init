@@ -1,0 +1,73 @@
+#!/bin/sh
+
+# $FreeBSD$
+
+# SPDX-License-Identifier: BSD-2-Clause-FreeBSD
+#
+#  Copyright(c) 2020 Daniel McGregor
+#
+#  Redistribution and use in source and binary forms, with or without
+#  modification, are permitted provided that the following conditions
+#  are met:
+#  1. Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+#  2. Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+#
+#  THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+#  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+#  IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+#  ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+#  FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+#  DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+#  OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+#  HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+#  LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+#  OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+#  SUCH DAMAGE.
+
+export LC_ALL=C.UTF-8
+SUBDIRECTORY_OK=Yes
+
+. "$(git --exec-path)/git-sh-setup"
+
+force=false
+
+while getopts "fn" opt;do
+	case "$opt" in
+		f)
+			force=true
+			;;
+		*)
+			usage
+			;;
+	esac
+done
+
+myprefix=$(dirname $0)
+hooksdir=$(git rev-parse --git-path hooks)
+PERL=$(which perl)
+
+if [ "$force" = "false" ] && git config --local --get filter.freebsdid.process > /dev/null; then
+	die "filter already configured"
+fi
+
+if [ "$force" = "false" ] && [ -z "$PERL" ] ; then
+	die "perl is required"
+fi
+
+install -C -m 755 ${myprefix}/git-keyword-filter ${hooksdir}/git-keyword-filter
+
+# Set up long running filter driver
+git config --local filter.freebsdid.process "${PERL} ${hooksdir}/git-keyword-filter"
+
+# Renames don't send a blob id to the filter, causing them to fail when a rebase
+# is performed.
+git config --local merge.renames false
+
+cd_to_toplevel
+
+if [ "$force" = "true" ] || ! grep -q '^[^#]*filter=freebsdid' $(git rev-parse --git-path info/attributes) 2>/dev/null ; then
+	grep '^[^#]*filter=freebsdid' .gitattributes >> $(git rev-parse --git-path info/attributes)
+fi
