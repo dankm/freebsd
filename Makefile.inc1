@@ -931,7 +931,7 @@ METALOG:=	${METALOG:C,//+,/,g}
 IMAKE+=		-DNO_ROOT METALOG=${METALOG}
 METALOG_INSTALLFLAGS=	-U -M ${METALOG} -D ${INSTALL_DDIR}
 INSTALLFLAGS+=	${METALOG_INSTALLFLAGS}
-CERTCTLFLAGS=	${METALOG_INSTALLFLAGS}
+CERTCTLFLAGS=	-U -M ${METALOG}
 MTREEFLAGS+=	-W
 .endif
 .if defined(BUILD_PKGS)
@@ -941,10 +941,12 @@ INSTALLFLAGS+=	-h sha256
 IMAKE_INSTALL=	INSTALL="${INSTALL_CMD} ${INSTALLFLAGS}"
 IMAKE_MTREE=	MTREE_CMD="${MTREE_CMD} ${MTREEFLAGS}"
 .endif
-.if make(distributeworld)
+.if make(distributeworld) || make(packageworld)
 CERTCTLDESTDIR=	${DESTDIR}/${DISTDIR}/base
+CERTCTLDISTDIR=	${DESTDIR}/${DISTDIR}
 .else
 CERTCTLDESTDIR=	${DESTDIR}
+CERTCTLDISTDIR=	${DESTDIR}
 .endif
 
 DESTDIR_MTREEFLAGS=	-deU
@@ -1443,13 +1445,21 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 	-mkdir ${DESTDIR}/${DISTDIR}/base
 	${_+_}cd ${.CURDIR}/etc; ${CROSSENV} PATH=${TMPPATH} ${MAKE} \
 	    METALOG=${METALOG} ${IMAKE_INSTALL} ${IMAKE_MTREE} \
-	    DISTBASE=/base DESTDIR=${DESTDIR}/${DISTDIR}/base \
+	    DISTBASE=/base DESTDIR=${${DESTDIR}/${DISTDIR}:L:C://*:/:g}/base \
 	    LOCAL_MTREE=${LOCAL_MTREE:Q} distrib-dirs
 	${INSTALL_SYMLINK} ${INSTALLFLAGS} usr/src/sys ${INSTALL_DDIR}/base/sys
 .endif # make(distributeworld)
 	${_+_}cd ${.CURDIR}; ${IMAKE} re${.TARGET:S/world$//}; \
 	    ${IMAKEENV} rm -rf ${INSTALLTMP}
 .if make(distributeworld)
+.if ${MK_CAROOT} != "no"
+	@if which openssl>/dev/null; then \
+		DESTDIR=${CERTCTLDESTDIR} DISTDIR=${CERTCTLDISTDIR} PATH=${TMPPATH}:${PATH} \
+		    sh ${SRCTOP}/usr.sbin/certctl/certctl.sh ${CERTCTLFLAGS} rehash \
+	else \
+		echo "No openssl on the host, not rehashing certificates target -- /etc/ssl may not be populated."; \
+	fi
+.endif
 	find ${DESTDIR}/${DISTDIR}/base/${TESTSBASE} -mindepth 1 -type d -empty -delete
 .for dist in ${EXTRA_DISTRIBUTIONS}
 	find ${DESTDIR}/${DISTDIR}/${dist} -mindepth 1 -type d -empty -delete
@@ -1480,14 +1490,6 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 .endfor
 .endif
 .endif # make(distributeworld)
-.if !make(packageworld) && ${MK_CAROOT} != "no"
-	@if which openssl>/dev/null; then \
-		DESTDIR=${CERTCTLDESTDIR} PATH=${TMPPATH}:${PATH} \
-		    sh ${SRCTOP}/usr.sbin/certctl/certctl.sh ${CERTCTLFLAGS} rehash \
-	else \
-		echo "No openssl on the host, not rehashing certificates target -- /etc/ssl may not be populated."; \
-	fi
-.endif
 
 packageworld: .PHONY
 .for dist in base ${EXTRA_DISTRIBUTIONS}

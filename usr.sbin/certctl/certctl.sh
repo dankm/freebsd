@@ -183,12 +183,12 @@ cmd_rehash()
 		if [ -e "$CERTDESTDIR" ]; then
 			find "$CERTDESTDIR" -type link -delete
 		else
-			mkdir -p "$CERTDESTDIR"
+			install ${INSTALLFLAGS} -d "$CERTDESTDIR"
 		fi
 		if [ -e "$BLACKLISTDESTDIR" ]; then
 			find "$BLACKLISTDESTDIR" -type link -delete
 		else
-			mkdir -p "$BLACKLISTDESTDIR"
+			install ${INSTALLFLAGS} -d "$BLACKLISTDESTDIR"
 		fi
 	fi
 
@@ -207,7 +207,7 @@ cmd_blacklist()
 	local BPATH
 
 	shift # verb
-	[ $NOOP -eq 0 ] && mkdir -p "$BLACKLISTDESTDIR"
+	[ $NOOP -eq 0 ] && install ${INSTALLFLAGS} -d "$BLACKLISTDESTDIR"
 	for BFILE in "$@"; do
 		echo "Adding $BFILE to blacklist"
 		create_blacklisted "$BFILE"
@@ -278,7 +278,7 @@ shift $(( $OPTIND - 1 ))
 
 : ${METALOG:=${DESTDIR}/METALOG}
 INSTALLFLAGS=
-[ $UNPRIV -eq 1 ] && INSTALLFLAGS="-U -M ${METALOG} -D ${DESTDIR}"
+[ $UNPRIV -eq 1 ] && INSTALLFLAGS="-U -M ${METALOG} -D ${DISTDIR:-${DESTDIR}}"
 : ${LOCALBASE:=$(sysctl -n user.localbase)}
 : ${TRUSTPATH:=${DESTDIR}/usr/share/certs/trusted:${DESTDIR}${LOCALBASE}/share/certs:${DESTDIR}${LOCALBASE}/etc/ssl/certs}
 : ${BLACKLISTPATH:=${DESTDIR}/usr/share/certs/blacklisted:${DESTDIR}${LOCALBASE}/etc/ssl/blacklisted}

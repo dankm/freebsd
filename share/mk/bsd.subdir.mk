@@ -91,10 +91,19 @@ _SUBDIR:
 
 DISTRIBUTION?=	base
 .if !target(distribute)
+.if make(distribute)
+.if defined(DESTDIR)
+_DD=${DESTDIR}/${DISTDIR}
+.else
+_DD=${DISTDIR}
+.endif
+# Sanitize _DD
+_DD:=	${_DD:C://*:/:g}
+.endif
 distribute: .MAKE
 .for dist in ${DISTRIBUTION}
 	${_+_}cd ${.CURDIR}; \
-	    ${MAKE} install installconfig -DNO_SUBDIR DESTDIR=${DISTDIR}/${dist} SHARED=copies
+	    ${MAKE} install installconfig -DNO_SUBDIR DESTDIR=${_DD}/${dist} SHARED=copies
 .endfor
 .endif
 # Convenience targets to run 'build${target}' and 'install${target}' when

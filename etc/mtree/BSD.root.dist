@@ -91,6 +91,10 @@
         ssh
         ..
         ssl
+            blacklisted
+            ..
+            certs
+            ..
         ..
         syslog.d
         ..
