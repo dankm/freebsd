@@ -18,7 +18,7 @@ GITBRANCH!=	${GIT_CMD} -C ${.CURDIR} rev-parse --abbrev-ref HEAD 2>/dev/null | s
 . export GITBRANCH
 . endif
 . if !defined(GITREV) || empty(GITREV)
-GITREV!=	${GIT_CMD} -C ${.CURDIR} rev-parse --verify --short HEAD 2>/dev/null || true
+GITREV!=	${GIT_CMD} -C ${.CURDIR} rev-parse --verify --short=12 HEAD 2>/dev/null || true
 . export GITREV
 . endif
 . if !defined(GITCOUNT) || empty(GITCOUNT)
