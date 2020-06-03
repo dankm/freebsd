@@ -251,14 +251,14 @@ if [ -n "$svnversion" ] ; then
 fi
 
 if [ -n "$git_cmd" ] ; then
-	git=$($git_cmd rev-parse --verify --short=12 HEAD 2>/dev/null)
+	git=${GITREV:-$($git_cmd rev-parse --verify --short=12 HEAD 2>/dev/null)}
 	if [ "$($git_cmd rev-parse --is-shallow-repository)" = false ] ; then
-		git_cnt=$($git_cmd rev-list --first-parent --count HEAD 2>/dev/null)
-		if [ -n "$git_cnt" ] ; then
+		git_cnt=${GITCOUNT:-$($git_cmd rev-list --first-parent --count HEAD 2>/dev/null)}
+		if [ -n "$git_cnt" -a "$git_cnt" != "0" ] ; then
 			git="n${git_cnt}-${git}"
 		fi
 	fi
-	git_b=$($git_cmd rev-parse --abbrev-ref HEAD)
+	git_b=${GITBRANCH:-$($git_cmd rev-parse --abbrev-ref HEAD)}
 	if [ -n "$git_b" -a "$git_b" != "HEAD" ] ; then
 		git="${git_b}-${git}"
 	fi
@@ -274,9 +274,9 @@ if [ -n "$gituprevision" ] ; then
 fi
 
 if [ -n "$hg_cmd" ] ; then
-	hg=$($hg_cmd id 2>/dev/null)
-	hgsvn=$($hg_cmd svn info 2>/dev/null | \
-		awk -F': ' '/Revision/ { print $2 }')
+	hg=${HGREV:-$($hg_cmd id 2>/dev/null)}
+	hgsvn=${HGSVN:-$($hg_cmd svn info 2>/dev/null | \
+		awk -F': ' '/Revision/ { print $2 }')}
 	if [ -n "$hgsvn" ] ; then
 		svn=" r${hgsvn}"
 	fi
