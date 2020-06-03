@@ -42,7 +42,7 @@ rpctlscd_clnt.c:	$S/rpc/rpcsec_tls/rpctlscd.x
 	RPCGEN_CPP=${CPP:Q} rpcgen -lM $S/rpc/rpcsec_tls/rpctlscd.x | grep -v string.h > rpctlscd_clnt.c
 
 SRCS+=		rpctlssd.h rpctlssd_xdr.c rpctlssd_clnt.c
-CLEANFILES=	rpctlssd.h rpctlssd_xdr.c rpctlssd_clnt.c
+CLEANFILES+=	rpctlssd.h rpctlssd_xdr.c rpctlssd_clnt.c
 
 S=		${SRCTOP}/sys
 
