@@ -35,12 +35,8 @@ PROGS+=		h_memset
 # sanitizer is not tested or supported for ARM right now. sbruno
 .if ${COMPILER_TYPE} == "clang" && ${CC} == "cc" && !defined(_SKIP_BUILD) && \
     (!defined(_RECURSING_PROGS) || ${PROG} == "h_raw")
-.if !defined(_CLANG_RESOURCE_DIR)
-_CLANG_RESOURCE_DIR!=	${CC:N${CCACHE_BIN}} -print-resource-dir
-.export _CLANG_RESOURCE_DIR
-.endif
 _libclang_rt_arch=	${MACHINE_ARCH:S/amd64/x86_64/:C/hf$//:S/mipsn32/mips64/}
-_libclang_rt_ubsan=	${_CLANG_RESOURCE_DIR}/lib/freebsd/libclang_rt.ubsan_standalone-${_libclang_rt_arch}.a
+_libclang_rt_ubsan=	${COMPILER_RESOURCE_DIR}/lib/freebsd/libclang_rt.ubsan_standalone-${_libclang_rt_arch}.a
 .if exists(${_libclang_rt_ubsan})
 PROGS+=		h_raw
 .endif
