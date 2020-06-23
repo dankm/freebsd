@@ -649,7 +649,9 @@ MKTEMP=${WORLDTMP}/legacy/usr/bin/mktemp
 .else
 MKTEMP=mktemp
 .endif
-INSTALLTMP!=	${MKTEMP} -d -u -t install
+INSTALLTMP=	${WORLDTMP}/installtmp.${.MAKE.PID}
+.END:
+	${_+_}-@rm -rf ${INSTALLTMP}
 .endif
 
 .if make(stagekernel) || make(distributekernel)
@@ -1353,6 +1355,7 @@ MTREE_TIME?=	/set ${time=%s.000000000:L:${localtime=${SOURCE_DATE_EPOCH}:L}}
 .endif
 
 distributeworld installworld stageworld: _installcheck_world .PHONY
+	if [ -d ${INSTALLTMP} ]; then rm -rf ${INSTALLTMP}; fi
 	mkdir -p ${INSTALLTMP}
 	progs=$$(for prog in ${ITOOLS}; do \
 		if progpath=`env PATH=${TMPPATH} which $$prog`; then \
@@ -1449,8 +1452,7 @@ distributeworld installworld stageworld: _installcheck_world .PHONY
 	    LOCAL_MTREE=${LOCAL_MTREE:Q} distrib-dirs
 	${INSTALL_SYMLINK} ${INSTALLFLAGS} usr/src/sys ${INSTALL_DDIR}/base/sys
 .endif # make(distributeworld)
-	${_+_}cd ${.CURDIR}; ${IMAKE} re${.TARGET:S/world$//}; \
-	    ${IMAKEENV} rm -rf ${INSTALLTMP}
+	${_+_}cd ${.CURDIR}; ${IMAKE} re${.TARGET:S/world$//}
 .if make(distributeworld)
 .if ${MK_CAROOT} != "no"
 	@if which openssl>/dev/null; then \
