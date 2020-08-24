@@ -147,6 +147,7 @@ static void	install(const char *, const char *, u_long, u_int);
 static void	install_dir(char *);
 static void	metadata_log(const char *, const char *, struct timespec *,
 		    const char *, const char *, off_t);
+static char *xstrip_slash(const char *);
 static int	parseid(const char *, id_t *);
 static int	strip(const char *, int, const char *, char **);
 static int	trymmap(size_t);
@@ -182,7 +183,7 @@ main(int argc, char *argv[])
 			/* For backwards compatibility. */
 			break;
 		case 'D':
-			destdir = optarg;
+			destdir = strdup(xstrip_slash(optarg));
 			break;
 		case 'd':
 			dodir = 1;
@@ -1420,6 +1421,31 @@ again:
 	metadata_log(path, "dir", NULL, NULL, NULL, 0);
 }
 
+static char *
+xstrip_slash(const char *path)
+{
+	static char tmp[MAXPATHLEN];
+	const char *s = path;
+	char *d = tmp;
+
+	while (*s) {
+		*d++ = *s;
+		if (*s != '/')
+			s++;
+		else
+			while (*s && *s == '/') s++;
+	}
+	*d = '\0';
+
+	d = tmp + strlen(tmp) - 1;
+	while (*d == '/') {
+		*d = 0;
+		--d;
+	}
+
+	return tmp;
+}
+
 /*
  * metadata_log --
  *	if metafp is not NULL, output mtree(8) full path name and settings to
@@ -1457,7 +1483,7 @@ metadata_log(const char *path, const char *type, struct timespec *ts,
 	}
 
 	/* Remove destdir. */
-	p = path;
+	p = xstrip_slash(path);
 	if (destdir) {
 		destlen = strlen(destdir);
 		if (strncmp(p, destdir, destlen) == 0 &&
@@ -1476,7 +1502,7 @@ metadata_log(const char *path, const char *type, struct timespec *ts,
 		fprintf(metafp, " gname=%s", group);
 	fprintf(metafp, " mode=%#o", mode);
 	if (slink) {
-		strsvis(buf, slink, VIS_CSTYLE, extra);	/* encode link */
+		strsvis(buf, xstrip_slash(slink), VIS_CSTYLE, extra);	/* encode link */
 		fprintf(metafp, " link=%s", buf);
 	}
 	if (*type == 'f') /* type=file */
