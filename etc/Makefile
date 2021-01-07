@@ -29,11 +29,6 @@ FREEBSD=COPYRIGHT
 # Sanitize DESTDIR
 DESTDIR:=	${DESTDIR:C://*:/:g}
 
-afterinstall:
-.if ${MK_MAN} != "no"
-	${_+_}cd ${SRCTOP}/share/man; ${MAKE} makedb
-.endif
-
 .if make(distribute)
 .if defined(DESTDIR)
 _DD=${DESTDIR}/${DISTDIR}

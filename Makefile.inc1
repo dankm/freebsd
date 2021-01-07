@@ -439,7 +439,8 @@ SUBDIR+=	${_DIR}
 # by calling 'makedb' in share/man.  This is only relevant for
 # install/distribute so they build the whatis file after every manpage is
 # installed.
-.if make(installworld) || make(install)
+.if make(installworld) || make(install) || make(distributeworld) || \
+    make(distribute) || make(stageworld)
 SUBDIR+=.WAIT
 .endif
 SUBDIR+=etc
@@ -1580,6 +1581,9 @@ restage reinstall: .MAKE .PHONY
 	${_+_}cd ${.CURDIR}; ${MAKE} -f Makefile.inc1 install
 .if defined(_LIBCOMPAT)
 	${_+_}cd ${.CURDIR}; ${MAKE} -f Makefile.inc1 install${libcompat}
+.endif
+.if ${MK_MAN} != "no"
+	${_+_}cd ${.CURDIR}/share/man; ${MAKE} makedb
 .endif
 	@echo "--------------------------------------------------------------"
 	@echo ">>> Installing everything completed on `LC_ALL=C date`"
